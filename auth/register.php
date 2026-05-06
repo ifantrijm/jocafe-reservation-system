@@ -47,7 +47,7 @@ if (isset($_POST['register'])) {
     <div class="auth-card">
         <div class="text-center mb-4">
             <h2 style="font-weight: 800; color: #f89b1c;">JO CAFE.</h2>
-            <p class="text-muted">Pendaftaran Akun Sistem Baru</p>
+            <p class="text-white">Pendaftaran Akun Sistem Baru</p>
         </div>
 
         <?php if(isset($error)): ?>
@@ -59,15 +59,15 @@ if (isset($_POST['register'])) {
 
         <form method="POST">
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">USERNAME</label>
+                <label class="form-label text-white small fw-bold">USERNAME</label>
                 <input type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">PASSWORD</label>
+                <label class="form-label text-white small fw-bold">PASSWORD</label>
                 <input type="password" name="password" class="form-control" required>
             </div>
             <div class="mb-4">
-                <label class="form-label text-muted small fw-bold">PILIH ROLE / JABATAN</label>
+                <label class="form-label text-white small fw-bold">PILIH ROLE / JABATAN</label>
                 <select name="role_staff" class="form-select" required>
                     <option value="admin">Admin</option>
                     <option value="manager">Manager</option>
@@ -75,7 +75,7 @@ if (isset($_POST['register'])) {
             </div>
             <button type="submit" name="register" class="btn-jo mb-3">Buat Akun</button>
             <div class="text-center">
-                <a href="login.php" class="text-muted text-decoration-none small">Sudah punya akun? Login di sini</a>
+                <a href="login.php" class="text-white text-decoration-none small">Sudah punya akun? Login di sini</a>
             </div>
         </form>
     </div>

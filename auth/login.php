@@ -67,7 +67,7 @@ if (isset($_POST['login'])) {
     <div class="auth-card">
         <div class="text-center mb-4">
             <h2 style="font-weight: 800; color: #f89b1c;">JO CAFE.</h2>
-            <p class="text-muted">Login Management System</p>
+            <p class="text-white">Login Management System</p>
         </div>
 
         <?php if(isset($error)): ?>
@@ -76,16 +76,16 @@ if (isset($_POST['login'])) {
 
         <form method="POST">
             <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">USERNAME</label>
+                <label class="form-label text-white small fw-bold">USERNAME</label>
                 <input type="text" name="username" class="form-control" required>
             </div>
             <div class="mb-4">
-                <label class="form-label text-muted small fw-bold">PASSWORD</label>
+                <label class="form-label text-white small fw-bold">PASSWORD</label>
                 <input type="password" name="password" class="form-control" required>
             </div>
             <button type="submit" name="login" class="btn-jo mb-3">Login ke Sistem</button>
             <div class="text-center">
-                <a href="register.php" class="text-muted text-decoration-none small">Belum punya akun? Registrasi dulu</a>
+                <a href="register.php" class="text-white text-decoration-none small">Belum punya akun? Registrasi dulu</a>
             </div>
         </form>
     </div>
