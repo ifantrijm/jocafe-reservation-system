@@ -173,9 +173,9 @@
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.php">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link" href="room.php">Reservasi Room</a></li>
-                    <li class="nav-item"><a class="nav-link" href="event.php">Reservasi Event</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#welcome">Tentang Kami</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Room</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Event</a></li>
                 </ul>
             </div>
         </div>
