@@ -163,25 +163,6 @@
             padding: 40px 0 20px;
             margin-top: 50px;
         }
-
-        /* Tombol Login Navbar */
-        .btn-login-nav {
-            background-color: transparent;
-            color: var(--jo-orange);
-            border: 1px solid var(--jo-orange);
-            border-radius: 20px;
-            padding: 6px 22px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: 0.3s;
-            margin-left: 15px; /* Jarak dari menu lain */
-        }
-        .btn-login-nav:hover {
-            background-color: var(--jo-orange);
-            color: white;
-        }
     </style>
 </head>
 <body>
@@ -193,25 +174,8 @@
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="about.php">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Room</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Event</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <nav id="joNavbar" class="navbar navbar-expand-lg navbar-custom fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">Jo Cafe<br><span style="font-size: 0.6rem; color: #fff; font-weight: 400;">Authentic Coffee, Bar & Kitchen</span></a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav align-items-center"> <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="about.php">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Room</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Event</a></li>
-                    
-                    <li class="nav-item mt-3 mt-lg-0">
-                        <a href="auth/login.php" class="btn-login-nav">Login</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="room.php">Reservasi Room</a></li>
+                    <li class="nav-item"><a class="nav-link" href="event.php">Reservasi Event</a></li>
                 </ul>
             </div>
         </div>
