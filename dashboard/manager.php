@@ -104,6 +104,23 @@ header("Expires: 0");
             text-decoration: none;
         }
         .btn-jo:hover { background-color: var(--jo-orange-hover); color: #ffffff; }
+
+                /* STYLE TOMBOL LOGOUT (BARU) */
+        .btn-logout {
+            background-color: transparent;
+            color: #ef4444; /* Warna merah */
+            font-weight: 600;
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .btn-logout:hover {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -114,7 +131,11 @@ header("Expires: 0");
             <h1 class="header-title">Statistik <span style="color: var(--jo-orange);">Reservasi</span></h1>
             <div class="header-subtitle mt-1">Laporan Frekuensi Pemesanan Area/Room Jo Cafe</div>
         </div>
-        <a href="room.php" class="btn-jo">← Kembali ke Room</a>
+
+        <div class="d-flex gap-3 align-items-center">
+            <a href="login.php" class="btn-jo">← Kembali ke Room</a>
+            <a href="../auth/logout.php" class="btn-logout">Logout</a>
+        </div>
     </div>
 
     <div class="row g-4 mb-2">
