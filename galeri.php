@@ -1,30 +1,43 @@
+<?php
+// 1. KONEKSI DATABASE
+$conn = mysqli_connect("localhost", "root", "", "jocafee");
+if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
+
+// 2. AMBIL SEMUA DATA GAMBAR
+$query = mysqli_query($conn, "SELECT * FROM gallery ORDER BY id_gallery DESC");
+$all_images = [];
+while($row = mysqli_fetch_assoc($query)) {
+    $all_images[] = $row;
+}
+
+$total_images = count($all_images);
+$current_index = 0;
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jo Cafe - Gallery</title>
+    <title>Jo Cafe - Gallery Grid</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playball&family=Poppins:wght@400;600&display=swap');
 
         body {
-            background-color: #000000; /* Dasar hitam pekat */
+            background-color: #000000;
             color: white;
             font-family: 'Poppins', sans-serif;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
 
         .gallery-page-wrapper {
-            flex: 1; /* Memastikan konten mendorong footer ke bawah */
             background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), 
                         url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1920');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            min-height: 100vh;
             padding-bottom: 50px;
         }
 
@@ -41,23 +54,15 @@
             line-height: 1;
         }
 
-        .gallery-section-subtitle {
-            color: #f39c12;
-            font-weight: 600;
-            display: block;
-        }
-
         .gallery-card {
             background: rgba(255, 255, 255, 0.08); 
             border-radius: 15px;
-            padding: 12px;
+            padding: 10px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
-            cursor: pointer;
         }
 
-        /* EFEK KOTAK OREN SAAT HOVER */
         .gallery-card:hover {
             border: 4px solid #f39c12; 
             transform: scale(1.02);
@@ -69,27 +74,18 @@
             border-radius: 10px;
         }
 
-        .row-1 .img-item { height: 200px; }
-        .row-2 .img-item { height: 320px; }
-        .row-3 .img-item { height: 380px; }
+        /* Tinggi gambar berdasarkan ukuran kotak */
+        .size-small { height: 180px; }
+        .size-medium { height: 280px; }
+        .size-large { height: 350px; }
 
-        .section-divider {
-            border: 0;
-            height: 1px;
-            background: rgba(255,255,255,0.2);
-            margin: 50px auto;
-            width: 90%;
-        }
-
-        /* FOOTER BERSIH TANPA GAMBAR */
         footer {
             text-align: center;
             font-size: 12px;
             color: #f39c12;
             padding: 20px 0;
-            background-color: #000000; /* Hitam Solid */
+            background-color: #000000;
             border-top: 1px solid #333;
-            width: 100%;
         }
     </style>
 </head>
@@ -107,35 +103,67 @@
         <div class="d-flex align-items-center mb-5">
             <div>
                 <h2 class="gallery-section-title">Gallery</h2>
-                <span class="gallery-section-subtitle">Jo Cafe</span>
+                <p class="m-0" style="color: #f39c12; font-weight: 600; letter-spacing: 2px;">MOMENTS AT JO CAFE</p>
             </div>
             <div class="flex-grow-1 ms-4" style="height: 1px; background-color: rgba(255,255,255,0.3);"></div>
         </div>
 
-        <div class="row g-3 row-1">
-            <div class="col-md-2 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400" class="img-item"></div></div>
-            <div class="col-md-2 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400" class="img-item"></div></div>
-            <div class="col-md-2 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=400" class="img-item"></div></div>
-            <div class="col-md-2 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400" class="img-item"></div></div>
-            <div class="col-md-2 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800" class="img-item"></div></div>
-        </div>
+        <?php 
+        // LOOPING POLA: 6, 4, 3
+        while ($current_index < $total_images): 
+        ?>
 
-        <hr class="section-divider">
+            <div class="row g-3 mb-4">
+                <?php 
+                for ($j = 0; $j < 6 && $current_index < $total_images; $j++): 
+                    $img = $all_images[$current_index++];
+                ?>
+                <div class="col-md-2 col-6">
+                    <div class="gallery-card">
+                        <img src="assets/img/gallery/<?= $img['gambar']; ?>" class="img-item size-small">
+                    </div>
+                </div>
+                <?php endfor; ?>
+            </div>
 
-        <div class="row g-4 row-2">
-            <div class="col-md-3 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600" class="img-item"></div></div>
-            <div class="col-md-3 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600" class="img-item"></div></div>
-            <div class="col-md-3 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?w=600" class="img-item"></div></div>
-            <div class="col-md-3 col-6"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?w=600" class="img-item"></div></div>
-        </div>
+            <?php if ($current_index < $total_images): ?>
+            <div class="row g-4 mb-4">
+                <?php 
+                for ($j = 0; $j < 4 && $current_index < $total_images; $j++): 
+                    $img = $all_images[$current_index++];
+                ?>
+                <div class="col-md-3 col-6">
+                    <div class="gallery-card">
+                        <img src="assets/img/gallery/<?= $img['gambar']; ?>" class="img-item size-medium">
+                    </div>
+                </div>
+                <?php endfor; ?>
+            </div>
+            <?php endif; ?>
 
-        <hr class="section-divider">
+            <?php if ($current_index < $total_images): ?>
+            <div class="row g-4 mb-4">
+                <?php 
+                for ($j = 0; $j < 3 && $current_index < $total_images; $j++): 
+                    $img = $all_images[$current_index++];
+                ?>
+                <div class="col-md-4 col-12">
+                    <div class="gallery-card">
+                        <img src="assets/img/gallery/<?= $img['gambar']; ?>" class="img-item size-large">
+                    </div>
+                </div>
+                <?php endfor; ?>
+            </div>
+            <?php endif; ?>
 
-        <div class="row g-4 row-3">
-            <div class="col-md-4"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=800" class="img-item"></div></div>
-            <div class="col-md-4"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1559925393-8be0ec4767c8?w=400" class="img-item"></div></div>
-            <div class="col-md-4"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800" class="img-item"></div></div>
-        </div>
+        <?php endwhile; ?>
+
+        <?php if ($total_images == 0): ?>
+            <div class="text-center py-5">
+                <p style="color: #666;">Belum ada foto yang diupload.</p>
+            </div>
+        <?php endif; ?>
+
     </div>
 </div>
 
@@ -143,6 +171,5 @@
     Copyright © 2026 Jo Cafe Gallery. All Rights Reserved.
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
