@@ -151,8 +151,9 @@ if (mysqli_query($conn, $query_res)) {
                             <div class="col-md-6">
                                 <label class="form-label">Jenis Reservasi</label>
                                 <select name="jenis" id="jenis_reservasi" class="form-select"  style="background-color: var(--bg-card); border-color:var(--accent-gold);" required>
-                                    <option value="room">Nongkrong / Makan Biasa</option>
-                                    <option value="event">Acara Spesial (Event)</option>
+                                    <option value="Makan-Makan">Makan-Makan</option>
+                                    <option value="ulang tahun">ulang tahun</option>
+                                    <option value="Rapat">Rapat</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
