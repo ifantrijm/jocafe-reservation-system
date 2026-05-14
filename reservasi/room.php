@@ -26,19 +26,17 @@ $nama_area_tampil = $info['nama_area'];
 $kapasitas_tampil = $info['kapasitas'];
 
 // 1. Logika Ambil Data Room (Untuk menampilkan info room yang dipilih di form)
-$id_room_dipilih = isset($_GET['id_room']) ? $_GET['id_room'] : 1;
 $query_room = mysqli_query($conn, "SELECT * FROM room WHERE id_room = '$id_room_dipilih'");
 $data_room = mysqli_fetch_assoc($query_room);
 
-
-// 2. Logika Submit Form
+// 2. Logika Submit Form 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     
     $nama        = mysqli_real_escape_string($conn, $_POST['nama']);
     $email       = mysqli_real_escape_string($conn, $_POST['email']);
     $telepon     = mysqli_real_escape_string($conn, $_POST['telepon']);
     $id_room     = $_POST['id_room'];
-    $jenis       = $_POST['jenis']; // 'room' atau 'event'
+    $jenis       = $_POST['jenis']; 
     $tgl         = $_POST['tanggal_reservasi'];
     $jam_mulai   = $_POST['jam_mulai'];
     $jam_selesai = $_POST['jam_selesai'];
@@ -49,9 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     $bukti_nama = $_FILES['bukti_pembayaran']['name'];
     $bukti_tmp  = $_FILES['bukti_pembayaran']['tmp_name'];
     $bukti_baru = time() . '_' . $bukti_nama;
+    
+    // Pindahkan file ke folder bukti
     move_uploaded_file($bukti_tmp, "../assets/img/bukti/" . $bukti_baru);
 
-    // --- TAHAP 1: INPUT KE PELANGGAN (ID didapat otomatis) ---
+    // --- TAHAP 1: INPUT KE PELANGGAN ---
     $cek = mysqli_query($conn, "SELECT id_pelanggan FROM pelanggan WHERE telepon = '$telepon'");
     if (mysqli_num_rows($cek) > 0) {
         $dp = mysqli_fetch_assoc($cek);
@@ -61,16 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
         $id_pelanggan = mysqli_insert_id($conn);
     }
 
-    // --- TAHAP 2: INPUT KE DETAIL_RESERVASI ---
-    mysqli_query($conn, "INSERT INTO detail_reservasi (id_pelanggan, id_room, nama_event, deskripsi) 
-                         VALUES ('$id_pelanggan', '$id_room', '$nama_event', '$deskripsi')");
-    $id_detail = mysqli_insert_id($conn);
+    // --- TAHAP 2: INPUT KE RESERVASI_ROOM (Langsung gabung ke sini, tanpa detail_reservasi) ---
+    $query_res = "INSERT INTO reservasi_room (id_pelanggan, id_room, tanggal_reservasi, jam_mulai, jam_selesai, bukti_pembayaran, nama_event, deskripsi) 
+                  VALUES ('$id_pelanggan', '$id_room', '$tgl', '$jam_mulai', '$jam_selesai', '$bukti_baru', '$nama_event', '$deskripsi')";
 
-    // --- TAHAP 3: INPUT KE RESERVASI_ROOM & UPDATE STATUS ---
-    $query_res = "INSERT INTO reservasi_room (id_pelanggan, id_detail_reservasi, tanggal_reservasi, jam_mulai, jam_selesai, bukti_pembayaran) 
-                  VALUES ('$id_pelanggan', '$id_detail', '$tgl', '$jam_mulai', '$jam_selesai', '$bukti_baru')";
-
-if (mysqli_query($conn, $query_res)) {
+    if (mysqli_query($conn, $query_res)) {
         // Ambil ID reservasi yang baru saja masuk
         $id_baru = mysqli_insert_id($conn);
         
@@ -81,7 +76,7 @@ if (mysqli_query($conn, $query_res)) {
         header("Location: nota.php?id=$id_baru");
         exit();
     } else {
-        echo "Error: " . mysqli_error($conn);
+        echo "<script>alert('Error: " . mysqli_error($conn) . "');</script>";
     }
 }
 ?>
@@ -89,7 +84,6 @@ if (mysqli_query($conn, $query_res)) {
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <!-- CSS TETAP SAMA SEPERTI MILIK PAK CIK -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isi Data Reservasi | Jo Cafe</title>
@@ -97,7 +91,6 @@ if (mysqli_query($conn, $query_res)) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* (Style milik Pak Cik dimasukkan di sini) */
         :root { --bg-main: #13171c; --bg-card: #1c2128; --text-main: #ffffff; --text-muted: #a0aab5; --accent-gold: #f89d13; --accent-gold-hover: #e08c0f; --border-dark: rgba(255, 255, 255, 0.1); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); padding-top: 80px; }
         .navbar-custom { background-color: rgba(19, 23, 28, 0.95); border-bottom: 1px solid var(--border-dark); }
@@ -125,7 +118,6 @@ if (mysqli_query($conn, $query_res)) {
                         
                         <div class="mb-4 p-3 rounded" style="background: rgba(248, 157, 19, 0.1); border: 1px solid var(--accent-gold);">
                             <label class="form-label text-warning mb-1">Area / Meja Terpilih</label>
-                            <!-- Mengambil Nama Meja dari DB -->
                             <input type="text" class="form-control border-0 bg-transparent fs-5 p-0" value="<?= $data_room['nama_area']; ?> (Kapasitas <?= $data_room['kapasitas']; ?> Orang)" readonly>
                             <input type="hidden" name="id_room" value="<?= $data_room['id_room']; ?>"> 
                         </div>

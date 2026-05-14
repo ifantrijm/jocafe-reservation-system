@@ -4,12 +4,11 @@ include "../config/koneksi.php";
 // Ambil ID dari URL
 $id = $_GET['id'];
 
-// Query Gabungan (Join) untuk mengambil data Lengkap
+// Query Gabungan (Join) untuk mengambil data Lengkap (Udah dibersihin dari detail_reservasi)
 $sql = "SELECT rr.*, p.nama, p.telepon, r.nama_area 
         FROM reservasi_room rr
         JOIN pelanggan p ON rr.id_pelanggan = p.id_pelanggan
-        JOIN detail_reservasi dr ON rr.id_detail_reservasi = dr.id_detail_reservasi
-        JOIN room r ON dr.id_room = r.id_room
+        JOIN room r ON rr.id_room = r.id_room
         WHERE rr.id_reservasi_room = '$id'";
 
 $query = mysqli_query($conn, $sql);

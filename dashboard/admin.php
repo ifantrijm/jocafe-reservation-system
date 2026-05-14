@@ -3,7 +3,7 @@ session_start();
 
 // 1. SATPAM SESSION KHUSUS ADMIN
 if (!isset($_SESSION['role_staff']) || $_SESSION['role_staff'] !== 'admin') {
-    header("Location: ../auth/login.php"); // Tendang ke folder auth
+    header("Location: ../auth/login.php");
     exit;
 }
 
@@ -38,9 +38,9 @@ header("Expires: 0");
             color: var(--text-main);
             margin: 0;
             display: flex;
+            overflow: hidden; /* Biar body utama gak bisa di-scroll, scrollnya di dalem iframe aja */
         }
 
-        /* Sidebar Sederhana */
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -50,10 +50,19 @@ header("Expires: 0");
             position: fixed;
         }
 
+        /* Padding content diilangin biar iframenya full screen */
         .main-content {
             margin-left: 250px;
-            padding: 40px;
+            width: calc(100% - 250px);
+            height: 100vh; 
+            padding: 0; 
+        }
+
+        /* Desain layarnya */
+        iframe {
             width: 100%;
+            height: 100%;
+            border: none;
         }
 
         .nav-link-custom {
@@ -71,127 +80,44 @@ header("Expires: 0");
             color: var(--bg-main);
             font-weight: 700;
         }
-
-        .stat-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-dark);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-        }
-
-        .btn-action {
-            background-color: transparent;
-            border: 1px solid var(--accent-gold);
-            color: var(--accent-gold);
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-block;
-            transition: 0.3s;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .btn-action:hover {
-            background-color: var(--accent-gold);
-            color: var(--bg-main);
-        }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <h4 class="fw-bold mb-5" style="color: var(--accent-gold);">JO CAFE <span class="text-white">ADMIN</span></h4>
-        <a href="#" class="nav-link-custom active"><i class="fas fa-home me-2"></i> Dashboard</a>
-        <a href="menu.html" class="nav-link-custom"><i class="fas fa-utensils me-2"></i> Kelola Menu</a>
-        <a href="gallery.html" class="nav-link-custom"><i class="fas fa-images me-2"></i> Gallery</a>
-        <a href="blog.html" class="nav-link-custom"><i class="fas fa-newspaper me-2"></i> Blog</a>
-        <hr class="my-4" style="border-color: var(--border-dark);">
-        <a href="../auth/logout.php" class="nav-link-custom text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-    </div>
+<div class="sidebar">
+    <h4 class="fw-bold mb-5" style="color: var(--accent-gold);">JO CAFE <span class="text-white">ADMIN</span></h4>
+    
+    <a href="/jocafe-reservation-system/dashboard/home.php" target="layar_konten" class="nav-link-custom active"><i class="fas fa-home me-2"></i> Dashboard</a>
+    
+    <a href="/jocafe-reservation-system/menu.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-utensils me-2"></i> Kelola Menu</a>
+    
+    <a href="/jocafe-reservation-system/form_galeri.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-images me-2"></i> Gallery</a>
+    
+    <a href="/jocafe-reservation-system/blog.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-newspaper me-2"></i> Blog</a>
+
+    <a href="/jocafe-reservation-system/testimoni.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-comments me-2"></i> Testimoni</a>
+
+    <a href="/jocafe-reservation-system/room.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-door-open me-2"></i> Room</a>
+    
+    <hr class="my-4" style="border-color: var(--border-dark);">
+    
+    <a href="/jocafe-reservation-system/auth/logout.php" class="nav-link-custom text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+</div>
 
     <div class="main-content">
-        <h2 class="fw-bold mb-4">Dashboard Overview</h2>
-        
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <h6 class="text-muted">Total Reservasi Room</h6>
-                    <h2 class="fw-bold">12</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <h6 class="text-muted">Total Reservasi Event</h6>
-                    <h2 class="fw-bold">5</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card">
-                    <h6 class="text-muted">Testimoni Baru</h6>
-                    <h2 class="fw-bold text-warning">3</h2>
-                </div>
-            </div>
-        </div>
-
-        <h4 class="fw-bold mb-3">Quick Actions (Presentasi)</h4>
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="stat-card text-start">
-                    <h5>Manajemen Reservasi</h5>
-                    <p class="small text-muted">Akses cepat ke form-form yang sudah dibuat.</p>
-                    <div class="row">
-                        <div class="col-6">
-                            <a href="reservasi_room.html" class="btn-action text-center"><i class="fas fa-door-open me-2"></i>Cek Room</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="reservasi_event.html" class="btn-action text-center"><i class="fas fa-star me-2"></i>Cek Event</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="stat-card text-start">
-                    <h5>Simulasi Pelanggan</h5>
-                    <p class="small text-muted">Mulai alur dari halaman depan pelanggan.</p>
-                    <a href="pilih_reservasi.html" class="btn-action text-center"><i class="fas fa-external-link-alt me-2"></i>Buka Halaman Selamat Datang</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="stat-card mt-5 text-start">
-            <h5 class="mb-4">Reservasi Masuk Terbaru</h5>
-            <table class="table table-dark table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama</th>
-                        <th>Jenis</th>
-                        <th>Tanggal</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#001</td>
-                        <td>Ifan</td>
-                        <td><span class="badge bg-warning text-dark">Room</span></td>
-                        <td>2026-04-28</td>
-                        <td><span class="text-success">Confirmed</span></td>
-                    </tr>
-                    <tr>
-                        <td>#002</td>
-                        <td>Budi</td>
-                        <td><span class="badge bg-info text-dark">Event</span></td>
-                        <td>2026-05-01</td>
-                        <td><span class="text-warning">Pending</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <iframe name="layar_konten" src="home.php"></iframe>
     </div>
 
+    <script>
+        const links = document.querySelectorAll('.nav-link-custom');
+        links.forEach(link => {
+            link.addEventListener('click', function() {
+                if(!this.classList.contains('text-danger')) {
+                    links.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
