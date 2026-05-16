@@ -80,8 +80,19 @@ header("Expires: 0");
 <body>
 
 <div class="sidebar">
-    <h4 class="fw-bold mb-5" style="color: var(--accent-gold);">JO CAFE <span class="text-white">MANAGER</span></h4>
+    <h4 class="fw-bold mb-4" style="color: var(--accent-gold);">JO CAFE <span class="text-white">MANAGER</span></h4>
     
+    <div class="d-flex align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-dark);">
+        <div class="rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px; background-color: rgba(248, 157, 19, 0.2); color: var(--accent-gold); font-size: 1.2rem;">
+            <i class="fas fa-user-tie"></i>
+        </div>
+        <div style="line-height: 1.2;">
+            <div class="fw-bold text-white text-capitalize" style="font-size: 0.95rem;">
+                <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Manager'; ?>
+            </div>
+            <small style="font-size: 0.75rem; color: #aab3be;">Manager / Super Admin</small>
+        </div>
+    </div>
     <a href="manager.php?page=home" class="nav-link-custom <?= (!isset($_GET['page']) || $_GET['page'] == 'home') ? 'active' : '' ?>">
         <i class="fas fa-chart-bar me-2"></i> Dashboard Overview
     </a>
