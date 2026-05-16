@@ -1,7 +1,6 @@
 <?php
 // KONEKSI DATABASE
-$conn = mysqli_connect("localhost", "root", "", "jocafee");
-if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
+include_once "../config/koneksi.php";
 
 // AMBIL DATA EDIT
 $editData = null;
@@ -20,7 +19,8 @@ if (isset($_POST['update_artikel'])) {
 
     if ($_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . $_FILES['gambar']['name'];
-        move_uploaded_file($_FILES['gambar']['tmp_name'], "assets/img/blog/" . $nama_file);
+        // JALUR DIPERBAIKI: Tambah ../
+        move_uploaded_file($_FILES['gambar']['tmp_name'], "../assets/img/blog/" . $nama_file);
 
         mysqli_query($conn, "UPDATE blog 
             SET judul='$judul', isi='$isi', gambar='$nama_file', tanggal='$tanggal'
@@ -31,7 +31,8 @@ if (isset($_POST['update_artikel'])) {
             WHERE id_blog='$id'");
     }
 
-    header("Location: blog.php");
+    // REDIRECT DIPERBAIKI
+    header("Location: admin.php?page=blog");
     exit;
 }
 
@@ -45,13 +46,15 @@ if (isset($_POST['tambah_artikel'])) {
 
     if ($_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']);
-        move_uploaded_file($_FILES['gambar']['tmp_name'], "assets/img/blog/" . $nama_file);
+        // JALUR DIPERBAIKI: Tambah ../
+        move_uploaded_file($_FILES['gambar']['tmp_name'], "../assets/img/blog/" . $nama_file);
     }
 
     mysqli_query($conn, "INSERT INTO blog (judul, isi, gambar, tanggal) 
                          VALUES ('$judul','$isi','$nama_file','$tanggal')");
 
-    header("Location: blog.php");
+    // REDIRECT DIPERBAIKI
+    header("Location: admin.php?page=blog");
     exit;
 }
 
@@ -62,196 +65,95 @@ if (isset($_GET['hapus'])) {
     $cek = mysqli_query($conn, "SELECT gambar FROM blog WHERE id_blog='$id'");
     $data = mysqli_fetch_assoc($cek);
 
-    if (!empty($data['gambar']) && file_exists("assets/img/blog/".$data['gambar'])) {
-        unlink("assets/img/blog/".$data['gambar']);
+    // JALUR DIPERBAIKI: Tambah ../
+    if (!empty($data['gambar']) && file_exists("../assets/img/blog/".$data['gambar'])) {
+        unlink("../assets/img/blog/".$data['gambar']);
     }
 
     mysqli_query($conn, "DELETE FROM blog WHERE id_blog='$id'");
-    header("Location: blog.php");
+    // REDIRECT DIPERBAIKI
+    header("Location: admin.php?page=blog");
     exit;
 }
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-<title>Dashboard Blog - Jo Caffe</title>
-
 <style>
-:root {
-    --bg-main: #13171c;
-    --bg-card: #1c2128;
-    --text-main: #ffffff;
-    --text-muted: #a0aab5;
-    --accent-gold: #f89d13;
-}
-
-body {
-    margin: 0;
-    font-family: Arial;
-    background: var(--bg-main);
-    color: var(--text-main);
-    padding: 30px;
-}
-
-.grid {
-    display: flex;
-    gap: 20px;
-}
-
-.form-box {
-    background: var(--bg-card);
-    padding: 20px;
-    border-radius: 10px;
-    width: 350px;
-}
-
-.form-box input,
-.form-box textarea {
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    background: var(--bg-main);
-    color: white;
-}
-
-.form-box button {
-    margin-top: 10px;
-    width: 100%;
-    padding: 12px;
-    background: var(--accent-gold);
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.table-box {
-    background: var(--bg-card);
-    padding: 20px;
-    border-radius: 10px;
-    flex: 1;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 5px;
-}
-
-.delete {
-    background: crimson;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-}
-
-.edit {
-    background: orange;
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-}
-
-.back-home {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-}
-
-.back-home a {
-    background: var(--accent-gold);
-    color: black;
-    padding: 12px 18px;
-    border-radius: 20px;
-    text-decoration: none;
-}
+    .blog-content { color: white; padding: 20px; font-family: 'Plus Jakarta Sans', sans-serif;}
+    .blog-grid { display: flex; gap: 20px; }
+    
+    .blog-form-box { background: #1c2128; padding: 20px; border-radius: 10px; width: 350px; border: 1px solid #1f2937; }
+    .blog-form-box input, .blog-form-box textarea { width: 100%; margin-top: 10px; padding: 10px; border: 1px solid #1f2937; border-radius: 5px; background: #13171c; color: white; box-sizing: border-box;}
+    .blog-form-box button { margin-top: 10px; width: 100%; padding: 12px; background: #f89d13; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: black;}
+    
+    .blog-table-box { background: #1c2128; padding: 20px; border-radius: 10px; flex: 1; border: 1px solid #1f2937; }
+    .blog-table { width: 100%; border-collapse: collapse; color: white; }
+    .blog-table th, .blog-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;}
+    .blog-table th { color: #f89d13; }
+    
+    .blog-img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; background-color: #13171c;}
+    .btn-delete { background: crimson; color: white; padding: 6px 12px; border-radius: 5px; text-decoration: none; font-size: 0.85rem;}
+    .btn-edit { background: orange; color: black; padding: 6px 12px; border-radius: 5px; text-decoration: none; font-size: 0.85rem;}
+    
+    .cancel-edit { display: block; text-align: center; margin-top: 10px; color: #aaa; text-decoration: none; font-size: 12px; }
 </style>
-</head>
 
-<body>
+<div class="blog-content">
+    <h2 style="font-weight: bold; margin-bottom: 20px;">Dashboard <span style="color: #f89d13;">Blog</span></h2>
 
-<h1>Dashboard Blog</h1>
+    <div class="blog-grid">
+        <div class="blog-form-box">
+            <h4 style="color: #f89d13; margin-top: 0;"><?= $editData ? 'Edit Artikel' : 'Tulis Artikel' ?></h4>
+            <form action="admin.php?page=blog" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="id_blog" value="<?= $editData['id_blog'] ?? '' ?>">
+                
+                <input type="text" name="judul" value="<?= $editData['judul'] ?? '' ?>" placeholder="Judul" required>
+                
+                <textarea name="isi" placeholder="Isi artikel..." rows="5" required><?= $editData['isi'] ?? '' ?></textarea>
+                
+                <label style="font-size: 12px; color: #aaa; margin-top: 10px; display: block;">Cover Image</label>
+                <input type="file" name="gambar" accept="image/*">
+                
+                <button type="submit" name="<?= $editData ? 'update_artikel' : 'tambah_artikel' ?>">
+                    <?= $editData ? 'Simpan Perubahan' : 'Post Artikel' ?>
+                </button>
 
-<div class="grid">
+                <?php if($editData): ?>
+                    <a href="admin.php?page=blog" class="cancel-edit">Batal Edit</a>
+                <?php endif; ?>
+            </form>
+        </div>
 
-<!-- FORM -->
-<div class="form-box">
-<form method="POST" enctype="multipart/form-data">
-
-<input type="hidden" name="id_blog" value="<?= $editData['id_blog'] ?? '' ?>">
-
-<input type="text" name="judul"
-value="<?= $editData['judul'] ?? '' ?>" placeholder="Judul" required>
-
-<textarea name="isi" placeholder="Isi artikel..." required><?= $editData['isi'] ?? '' ?></textarea>
-
-<input type="file" name="gambar">
-
-<button type="submit" name="<?= $editData ? 'update_artikel' : 'tambah_artikel' ?>">
-<?= $editData ? 'Update Artikel' : 'Post Artikel' ?>
-</button>
-
-</form>
+        <div class="blog-table-box">
+            <table class="blog-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Cover</th>
+                        <th style="width: 25%;">Judul</th>
+                        <th style="width: 30%;">Isi Singkat</th>
+                        <th style="width: 15%;">Tanggal</th>
+                        <th style="width: 15%;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $res = mysqli_query($conn, "SELECT * FROM blog ORDER BY id_blog DESC");
+                    while ($row = mysqli_fetch_assoc($res)) :
+                        // JALUR FOTO DIPERBAIKI: Tambah ../
+                        $foto = $row['gambar'] ? "../assets/img/blog/".$row['gambar'] : "https://via.placeholder.com/60";
+                    ?>
+                    <tr>
+                        <td><img src="<?= $foto ?>" class="blog-img"></td>
+                        <td style="font-weight: bold;"><?= htmlspecialchars($row['judul']) ?></td>
+                        <td><small style="color: #aaa;"><?= htmlspecialchars(substr($row['isi'], 0, 50)) ?>...</small></td>
+                        <td><small><?= date('d M Y', strtotime($row['tanggal'])) ?></small></td>
+                        <td>
+                            <a href="admin.php?page=blog&edit=<?= $row['id_blog'] ?>" class="btn-edit">Edit</a>
+                            <a href="admin.php?page=blog&hapus=<?= $row['id_blog'] ?>" class="btn-delete" onclick="return confirm('Hapus artikel ini?')">Hapus</a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
-<!-- TABLE -->
-<div class="table-box">
-<table>
-<thead>
-<tr>
-<th>Cover</th>
-<th>Judul</th>
-<th>Isi</th>
-<th>Tanggal</th>
-<th>Aksi</th>
-</tr>
-</thead>
-
-<tbody>
-<?php
-$res = mysqli_query($conn, "SELECT * FROM blog ORDER BY id_blog DESC");
-while ($row = mysqli_fetch_assoc($res)) :
-$foto = $row['gambar'] ? "assets/img/blog/".$row['gambar'] : "https://via.placeholder.com/60";
-?>
-
-<tr>
-<td><img src="<?= $foto ?>"></td>
-<td><?= $row['judul'] ?></td>
-<td><?= substr($row['isi'],0,50) ?>...</td>
-<td><?= $row['tanggal'] ?></td>
-<td>
-<a href="?edit=<?= $row['id_blog'] ?>" class="edit">Edit</a>
-<a href="?hapus=<?= $row['id_blog'] ?>" class="delete" onclick="return confirm('Hapus?')">Hapus</a>
-</td>
-</tr>
-
-<?php endwhile; ?>
-</tbody>
-
-</table>
-</div>
-
-</div>
-
-<div class="back-home">
-<a href="index.php">← Kembali ke Home</a>
-</div>
-
-</body>
-</html>

@@ -311,7 +311,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
             
             <div class="row justify-content-center g-4">
                 <?php 
-                $query_testi = mysqli_query($conn, "SELECT * FROM testimoni WHERE rating >= 3 ORDER BY id_testimoni DESC LIMIT 3");
+                $query_testi = mysqli_query($conn, "SELECT * FROM testimoni WHERE status = 'tampilkan' ORDER BY id_testimoni DESC LIMIT 3");
                 if(mysqli_num_rows($query_testi) > 0) {
                     while($row = mysqli_fetch_assoc($query_testi)) {
                         $bintang = str_repeat("⭐", $row['rating']);

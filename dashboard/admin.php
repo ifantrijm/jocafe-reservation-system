@@ -33,7 +33,7 @@ header("Expires: 0");
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
             background-color: var(--bg-main);
             color: var(--text-main);
             margin: 0;
@@ -87,25 +87,58 @@ header("Expires: 0");
 <div class="sidebar">
     <h4 class="fw-bold mb-5" style="color: var(--accent-gold);">JO CAFE <span class="text-white">ADMIN</span></h4>
     
-    <a href="/jocafe-reservation-system/dashboard/home.php" target="layar_konten" class="nav-link-custom active"><i class="fas fa-home me-2"></i> Dashboard</a>
+    <a href="admin.php?page=home" class="nav-link-custom"><i class="fas fa-home me-2"></i> Dashboard</a>
     
-    <a href="/jocafe-reservation-system/menu.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-utensils me-2"></i> Kelola Menu</a>
+    <a href="admin.php?page=menu" class="nav-link-custom"><i class="fas fa-utensils me-2"></i> Kelola Menu</a>
     
-    <a href="/jocafe-reservation-system/form_galeri.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-images me-2"></i> Gallery</a>
+    <a href="admin.php?page=galeri" class="nav-link-custom"><i class="fas fa-images me-2"></i> Gallery</a>
     
-    <a href="/jocafe-reservation-system/blog.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-newspaper me-2"></i> Blog</a>
+    <a href="admin.php?page=blog" class="nav-link-custom"><i class="fas fa-newspaper me-2"></i> Blog</a>
 
-    <a href="/jocafe-reservation-system/testimoni.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-comments me-2"></i> Testimoni</a>
+    <a href="admin.php?page=room" class="nav-link-custom"><i class="fas fa-door-open me-2"></i> Room</a>
 
-    <a href="/jocafe-reservation-system/room.php" target="layar_konten" class="nav-link-custom"><i class="fas fa-door-open me-2"></i> Room</a>
+    <a href="admin.php?page=TampilanTestimoni" class="nav-link-custom"><i class="fas fa-comments me-2"></i> Tampilan Testimoni
+</a>
     
     <hr class="my-4" style="border-color: var(--border-dark);">
     
-    <a href="/jocafe-reservation-system/auth/logout.php" class="nav-link-custom text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+    <a href="../auth/logout.php" class="nav-link-custom text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
 </div>
 
     <div class="main-content">
-        <iframe name="layar_konten" src="home.php"></iframe>
+        <?php 
+    // 1. Menangkap parameter halaman dari URL. Jika baru login (kosong), arahkan ke 'home'
+    $halaman = isset($_GET['page']) ? $_GET['page'] : 'home';
+
+    // 2. Memanggil file yang sesuai dengan menu yang diklik
+    switch ($halaman) {
+        case 'home':
+            // Sesuaikan jalur folder jika home.php ada di dalam folder dashboard
+            include "../dashboard/home.php"; 
+            break;
+        case 'menu':
+            include "../menu.php";
+            break;
+        case 'galeri':
+            include "../form_galeri.php";
+            break;
+        case 'blog':
+            include "../blog.php";
+            break;
+        case 'room':
+            include "../room.php";
+            break;
+        case 'TampilanTestimoni':
+            include "../TampilanTestimoni.php";
+            break;
+        default:
+            echo "<div class='container mt-5'>
+                    <h3 class='text-white'>Halaman tidak ditemukan! (Error 404)</h3>
+                    <p class='text-muted'>Silakan periksa kembali tautan atau nama file.</p>
+                  </div>";
+            break;
+    }
+    ?>
     </div>
 
     <script>
