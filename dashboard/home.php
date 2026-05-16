@@ -13,8 +13,8 @@ if (isset($_GET['selesai_room']) && isset($_GET['id_kamar'])) {
     // 1. Kosongkan meja biar bisa dipesan orang lain lagi
     mysqli_query($conn, "UPDATE room SET status = 'Tersedia' WHERE id_room = '$id_kamar'");
 
-    // 2. Hapus data antrean dari tabel reservasi_room
-    mysqli_query($conn, "DELETE FROM reservasi_room WHERE id_reservasi_room = '$id_res'");
+    // 2. SOFT DELETE: Jangan hapus data, cukup update status jadi 'Selesai'
+    mysqli_query($conn, "UPDATE reservasi_room SET status_pesanan = 'Selesai' WHERE id_reservasi_room = '$id_res'");
 
     // Refresh halaman
     echo "<script>window.location='admin.php?page=home';</script>";
@@ -25,7 +25,7 @@ if (isset($_GET['selesai_room']) && isset($_GET['id_kamar'])) {
 if (isset($_GET['selesai_event'])) {
     $id_event = $_GET['selesai_event'];
 
-    // Hapus data antrean dari tabel reservasi_event
+    // Sementara event kita hapus dulu (kecuali lo mau bikin status_pesanan juga di tabel reservasi_event nanti)
     mysqli_query($conn, "DELETE FROM reservasi_event WHERE id_event_res = '$id_event'");
 
     // Refresh halaman
@@ -52,12 +52,12 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
 ?>
 
 <style>
-    .home-content { font-family: 'Plus Jakarta Sans', sans-serif; color: white; padding: 20px; overflow-y:auto; height: 100vh;}
+    .home-content { font-family: 'Plus Jakarta Sans', sans-serif; color: white; padding: 20px;}
     .stat-card {
         background-color: #1c2128;
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 15px;
-        padding: 10px;
+        padding: 25px;
         text-align: center;
         transition: 0.3s;
         height: 100%;
@@ -96,21 +96,21 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
         <div class="col-md-4">
             <div class="stat-card">
                 <i class="fas fa-utensils stat-icon"></i>
-                <h6 class= mt-2">Total Data Menu</h6>
+                <h6 class="text-muted mt-2">Total Data Menu</h6>
                 <h2 class="fw-bold"><?php echo $jml_menu; ?></h2>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card">
                 <i class="fas fa-images stat-icon"></i>
-                <h6 class= mt-2">Total Foto Galeri</h6>
+                <h6 class="text-muted mt-2">Total Foto Galeri</h6>
                 <h2 class="fw-bold"><?php echo $jml_galeri; ?></h2>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card">
                 <i class="fas fa-newspaper stat-icon"></i>
-                <h6 class= mt-2">Total Artikel Blog</h6>
+                <h6 class="text-muted mt-2">Total Artikel Blog</h6>
                 <h2 class="fw-bold"><?php echo $jml_blog; ?></h2>
             </div>
         </div>
@@ -120,14 +120,14 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
         <div class="col-md-4">
             <div class="stat-card">
                 <i class="fas fa-star stat-icon"></i>
-                <h6 class= mt-2">Testimoni</h6>
+                <h6 class="text-muted mt-2">Testimoni</h6>
                 <h2 class="fw-bold text-warning"><?php echo $jml_testimoni; ?></h2>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card">
                 <i class="fas fa-door-open stat-icon"></i>
-                <h6 class= mt-2">Total Reservasi Room</h6>
+                <h6 class="text-muted mt-2">Total Reservasi Room</h6>
                 <h2 class="fw-bold text-info"><?php echo $jml_room; ?></h2>
             </div>
         </div>
@@ -177,10 +177,13 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                 </thead>
                 <tbody>
                     <?php
+                    // 1. QUERY DIPERBAIKI: Hapus filter WHERE biar semua data tetap tampil
                     $sql_gabungan = "
-                        (SELECT id_reservasi_room AS id, id_pelanggan, tanggal_reservasi AS tgl, 'Room' AS jenis, bukti_pembayaran AS bukti, id_room AS item_id FROM reservasi_room)
+                        (SELECT id_reservasi_room AS id, id_pelanggan, tanggal_reservasi AS tgl, 'Room' AS jenis, bukti_pembayaran AS bukti, id_room AS item_id, IFNULL(status_pesanan, 'Aktif') as status_db 
+                         FROM reservasi_room)
                         UNION
-                        (SELECT id_event_res AS id, id_pelanggan, tanggal_event AS tgl, 'Event' AS jenis, NULL AS bukti, 0 AS item_id FROM reservasi_event)
+                        (SELECT id_event_res AS id, id_pelanggan, tanggal_event AS tgl, 'Event' AS jenis, NULL AS bukti, 0 AS item_id, 'Aktif' as status_db 
+                         FROM reservasi_event)
                         ORDER BY tgl DESC LIMIT 5
                     ";
 
@@ -189,14 +192,21 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                     if ($query_terbaru && mysqli_num_rows($query_terbaru) > 0) {
                         while ($row = mysqli_fetch_assoc($query_terbaru)) {
                             $badge_warna = ($row['jenis'] == 'Room') ? 'bg-warning text-dark' : 'bg-info text-dark';
-                            $status_txt = ($row['jenis'] == 'Room' && !empty($row['bukti'])) ? 'Confirmed' : 'Pending';
-                            $warna_status = ($status_txt == 'Confirmed') ? 'text-success' : 'text-warning';
+                            
+                            // 2. LOGIKA STATUS: Ganti tulisan & warna kalau udah 'Selesai'
+                            if ($row['status_db'] == 'Selesai') {
+                                $status_txt = 'Selesai';
+                                $warna_status = 'text-success fw-bold';
+                            } else {
+                                $status_txt = ($row['jenis'] == 'Room' && !empty($row['bukti'])) ? 'Confirmed' : 'Pending';
+                                $warna_status = ($status_txt == 'Confirmed') ? 'text-primary' : 'text-warning';
+                            }
                     ?>
                         <tr>
                             <td>#<?php echo $row['id']; ?></td>
                             <td>User ID: <?php echo $row['id_pelanggan']; ?></td>
                             <td><span class="badge <?php echo $badge_warna; ?>"><?php echo $row['jenis']; ?></span></td>
-                            <td><?php echo $row['tgl']; ?></td>
+                            <td><?php echo date('Y-m-d', strtotime($row['tgl'])); ?></td>
                             <td><span class="<?php echo $warna_status; ?>"><?php echo $status_txt; ?></span></td>
                             <td>
                                 <div class="d-flex justify-content-start">
@@ -206,15 +216,21 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                                             <i class="fas fa-receipt"></i> Bukti
                                         </a>
                                     <?php } else { ?>
-                                        <button class="btn btn-sm btn-secondary fw-bold me-2" disabled title="Bayar di tempat / Belum bayar">
+                                        <button class="btn btn-sm btn-secondary fw-bold me-2" disabled title="Tidak ada bukti">
                                             <i class="fas fa-receipt"></i> Bukti
                                         </button>
                                     <?php } ?>
                                     
-                                    <a href="admin.php?page=home&selesai_<?php echo strtolower($row['jenis']); ?>=<?php echo $row['id']; ?>&id_kamar=<?php echo $row['item_id']; ?>" 
-                                       class="btn btn-sm btn-success fw-bold" onclick="return confirm('Selesaikan pesanan ini?')">
-                                       <i class="fas fa-check"></i> Selesai
-                                    </a>
+                                    <?php if ($row['status_db'] == 'Selesai') { ?>
+                                        <button class="btn btn-sm btn-secondary fw-bold" disabled>
+                                            <i class="fas fa-check-double"></i> Selesai
+                                        </button>
+                                    <?php } else { ?>
+                                        <a href="admin.php?page=home&selesai_<?php echo strtolower($row['jenis']); ?>=<?php echo $row['id']; ?>&id_kamar=<?php echo $row['item_id']; ?>" 
+                                           class="btn btn-sm btn-success fw-bold" onclick="return confirm('Selesaikan pesanan ini?')">
+                                           <i class="fas fa-check"></i> Selesai
+                                        </a>
+                                    <?php } ?>
                                     
                                 </div>
                             </td>
@@ -222,7 +238,7 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                     <?php 
                         }
                     } else {
-                        echo '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada reservasi masuk.</td></tr>';
+                        echo '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada reservasi terbaru.</td></tr>';
                     }
                     ?>
                 </tbody>

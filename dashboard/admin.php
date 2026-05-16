@@ -38,7 +38,7 @@ header("Expires: 0");
             color: var(--text-main);
             margin: 0;
             display: flex;
-            overflow: hidden; /* Biar body utama gak bisa di-scroll, scrollnya di dalem iframe aja */
+            /* overflow: hidden; DIHAPUS BIAR BISA SCROLL */
         }
 
         .sidebar {
@@ -50,12 +50,15 @@ header("Expires: 0");
             position: fixed;
         }
 
-        /* Padding content diilangin biar iframenya full screen */
+        /* BAGIAN INI YANG DIBENERIN BIAR BISA SCROLL */
         .main-content {
             margin-left: 250px;
             width: calc(100% - 250px);
             height: 100vh; 
-            padding: 0; 
+            padding: 0;
+            overflow-y: auto; /* INI KUNCINYA */
+            overflow-x: hidden;
+            padding-bottom: 50px; /* Jarak aman di bawah */
         }
 
         /* Desain layarnya */
@@ -97,8 +100,7 @@ header("Expires: 0");
 
     <a href="admin.php?page=room" class="nav-link-custom"><i class="fas fa-door-open me-2"></i> Room</a>
 
-    <a href="admin.php?page=TampilanTestimoni" class="nav-link-custom"><i class="fas fa-comments me-2"></i> Tampilan Testimoni
-</a>
+    <a href="admin.php?page=TampilanTestimoni" class="nav-link-custom"><i class="fas fa-comments me-2"></i> Tampilan Testimoni</a>
     
     <hr class="my-4" style="border-color: var(--border-dark);">
     
@@ -113,7 +115,6 @@ header("Expires: 0");
     // 2. Memanggil file yang sesuai dengan menu yang diklik
     switch ($halaman) {
         case 'home':
-            // Sesuaikan jalur folder jika home.php ada di dalam folder dashboard
             include "../dashboard/home.php"; 
             break;
         case 'menu':

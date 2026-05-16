@@ -183,8 +183,8 @@ function get_gambar($conn, $id_gallery, $default_url) {
                 <ul class="navbar-nav align-items-center">
                     <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#welcome">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Room</a></li>
-                    <li class="nav-item"><a class="nav-link" href="index.php">Reservasi Event</a></li>
+                    <li class="nav-item"><a class="nav-link" href="page_reservasi.php">Reservasi Room</a></li>
+                    <li class="nav-item"><a class="nav-link" href="page_reservasi.php">Reservasi Event</a></li>
                 </ul>
             </div>
         </div>
@@ -197,7 +197,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <h1 class="hero-title mb-4">Layanan<br>Reservasi Tempat</h1>
                     <div class="d-flex gap-3 mt-4">
                         <a href="#welcome" class="btn btn-outline-jo">Selengkapnya</a>
-                        <a href="index.php" class="btn btn-jo">Reservasi</a>
+                        <a href="page_reservasi.php" class="btn btn-jo">Reservasi</a>
                     </div>
                 </div>
                 <div class="col-md-6 text-center">
