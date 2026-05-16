@@ -22,8 +22,8 @@ if (isset($_POST['tambah'])) {
     }
     
     // Insert ke database
-    $query = "INSERT INTO room (id_admin, id_detail_reservasi, nama_area, kapasitas, gambar, status) 
-              VALUES (NULL, NULL, '$nama', '$kapasitas', '$nama_file', 'Tersedia')";
+    $query = "INSERT INTO room (id_admin, nama_area, kapasitas, gambar, status) 
+              VALUES (NULL, '$nama', '$kapasitas', '$nama_file', 'Tersedia')";
               
     mysqli_query($conn, $query);
     // REDIRECT DIPERBAIKI
