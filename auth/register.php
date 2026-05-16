@@ -24,23 +24,21 @@ if (isset($_POST['register'])) {
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
             // 2. SIMPAN KE TABEL UTAMA (staff)
+            // status_akun akan otomatis jadi 'Pending' karena settingan database
             $query = "INSERT INTO staff (username, password, role_staff) VALUES ('$username_clean', '$hashed_password', '$role')";
             $simpan = mysqli_query($conn, $query);
 
             if ($simpan) {
-                // 3. AMBIL ID STAFF YANG BARU SAJA DIBUAT
                 $id_staff_baru = mysqli_insert_id($conn);
 
-                // 4. LOGIKA PERCABANGAN: MASUK KE TABEL KHUSUS SESUAI ROLE
                 if ($role == 'admin') {
-                    // Masukkan ke tabel admin
                     mysqli_query($conn, "INSERT INTO admin (id_staff) VALUES ('$id_staff_baru')");
                 } elseif ($role == 'manager') {
-                    // Masukkan ke tabel manager
                     mysqli_query($conn, "INSERT INTO manager (id_staff) VALUES ('$id_staff_baru')");
                 }
 
-                $success = "Registrasi berhasil sebagai $role! Silakan login.";
+                // NOTIFIKASI DIUBAH: Kasih tau kalau akunnya masuk antrean
+                $success = "Registrasi berhasil! Akun Anda berstatus <b>Pending</b>. Tunggu persetujuan Manager untuk bisa Login.";
             } else {
                 $error = "Gagal menyimpan data: " . mysqli_error($conn);
             }
@@ -55,10 +53,8 @@ if (isset($_POST['register'])) {
     <meta charset="UTF-8">
     <title>Registrasi Staff | Jo Cafe</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 
     <style>
@@ -177,30 +173,25 @@ if (isset($_POST['register'])) {
 
 <div class="auth-card">
 
-    <!-- HEADER -->
     <div class="logo">
         <h2>JO CAFE.</h2>
         <p>Pendaftaran Akun Sistem Baru</p>
     </div>
 
-    <!-- PESAN ERROR -->
     <?php if(isset($error)): ?>
         <div class="alert alert-danger py-2 small">
             ⚠️ <?= $error; ?>
         </div>
     <?php endif; ?>
 
-    <!-- PESAN SUKSES -->
     <?php if(isset($success)): ?>
-        <div class="alert alert-success py-2 small">
-            ✅ <?= $success; ?>
+        <div class="alert alert-warning py-2 small text-dark">
+            ⏳ <?= $success; ?>
         </div>
     <?php endif; ?>
 
-    <!-- FORM -->
     <form method="POST">
 
-        <!-- USERNAME -->
         <div class="mb-3">
             <label class="form-label">USERNAME</label>
 
@@ -217,7 +208,6 @@ if (isset($_POST['register'])) {
             </div>
         </div>
 
-        <!-- PASSWORD -->
         <div class="mb-3">
             <label class="form-label">PASSWORD</label>
 
@@ -233,7 +223,6 @@ if (isset($_POST['register'])) {
             </div>
         </div>
 
-        <!-- KONFIRMASI PASSWORD -->
         <div class="mb-3">
             <label class="form-label">KONFIRMASI PASSWORD</label>
 
@@ -245,7 +234,6 @@ if (isset($_POST['register'])) {
             >
         </div>
 
-        <!-- ROLE -->
         <div class="mb-4">
             <label class="form-label">PILIH ROLE / JABATAN</label>
 
@@ -255,12 +243,10 @@ if (isset($_POST['register'])) {
             </select>
         </div>
 
-        <!-- BUTTON -->
         <button type="submit" name="register" class="btn-jo">
             Buat Akun
         </button>
 
-        <!-- LINK LOGIN -->
         <div class="link-login">
             <a href="login.php">
                 Sudah punya akun? Login di sini

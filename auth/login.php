@@ -1,49 +1,42 @@
 <?php
 session_start();
-// Panggil koneksi database
 require '../config/koneksi.php'; 
 
-// Jika user sudah login, tendang balik ke dashboard masing-masing biar nggak bisa akses login lagi
 if (isset($_SESSION['role_staff'])) {
     if ($_SESSION['role_staff'] == 'admin') header("Location: ../dashboard/admin.php");
-    else header("Location: ../auth/login.php");
+    else header("Location: ../dashboard/manager.php");
     exit;
 }
 
-// if ($_SESSION['role_staff'] == 'superadmin') {
-//     header("Location: ../dashboard/super_admin.php");
-// }
-
-// Jika tombol login diklik
 if (isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']); // Ganti $conn jadi $koneksi kalau di file koneksi.php lo pakainya $koneksi
+    $username = mysqli_real_escape_string($conn, $_POST['username']); 
     $password = $_POST['password'];
 
-    // Cari username di tabel staff
     $query = mysqli_query($conn, "SELECT * FROM staff WHERE username='$username'");
     
-    // Cek apakah username ada (jumlah baris = 1)
     if (mysqli_num_rows($query) === 1) {
         $row = mysqli_fetch_assoc($query);
         
-        // Verifikasi kecocokan password yang diketik dengan hash di database
-        if (password_verify($password, $row['password'])) {
-            // Set variabel Session
-            $_SESSION['id_staff'] = $row['id_staff'];
-            $_SESSION['username'] = $row['username'];
-            $_SESSION['role_staff'] = $row['role_staff'];
-
-            // Otorisasi & Routing berdasarkan Role (Arahkan ke folder masing-masing)
-// Otorisasi & Routing berdasarkan Role
-            if ($row['role_staff'] == 'admin') {
-                header("Location: ../dashboard/admin.php"); // Arahkan ke folder dashboard file admin.php
-                exit;
-            } else if ($row['role_staff'] == 'manager') {
-                header("Location: ../dashboard/manager.php"); // Arahkan ke folder dashboard file manager.php
-                exit;
-            }
+        // --- LOGIKA BARU: CEK STATUS AKUN DULU SEBELUM CEK PASSWORD ---
+        if ($row['status_akun'] === 'Pending') {
+            $error = "Akses Ditolak! Akun Anda masih menunggu persetujuan Manager.";
         } else {
-            $error = "Password yang Anda masukkan salah!";
+            // Kalau Aktif, baru cek passwordnya
+            if (password_verify($password, $row['password'])) {
+                $_SESSION['id_staff'] = $row['id_staff'];
+                $_SESSION['username'] = $row['username'];
+                $_SESSION['role_staff'] = $row['role_staff'];
+
+                if ($row['role_staff'] == 'admin') {
+                    header("Location: ../dashboard/admin.php");
+                    exit;
+                } else if ($row['role_staff'] == 'manager') {
+                    header("Location: ../dashboard/manager.php");
+                    exit;
+                }
+            } else {
+                $error = "Password yang Anda masukkan salah!";
+            }
         }
     } else {
         $error = "Username tidak ditemukan di sistem!";
@@ -75,7 +68,7 @@ if (isset($_POST['login'])) {
         </div>
 
         <?php if(isset($error)): ?>
-            <div class="alert alert-danger py-2 small text-center"><?= $error; ?></div>
+            <div class="alert alert-danger py-2 small text-center fw-bold"><?= $error; ?></div>
         <?php endif; ?>
 
         <form method="POST">
