@@ -22,6 +22,7 @@ $query = mysqli_query($conn, "SELECT * FROM room");
         .status-merah { color: #e74c3c; border: 1px solid #e74c3c; background: rgba(231, 76, 60, 0.1); }
         .img-room { height: 180px; object-fit: cover; border-radius: 15px 15px 0 0; }
         .btn-booking { background-color: #f89b1c; color: #0a0e17; font-weight: 700; border: none; text-decoration: none; display: block; width: 100%; text-align: center; border-radius: 8px; }
+        .btn-booking:hover {color:white;}
     </style>
 </head>
 <body>
@@ -42,7 +43,7 @@ $query = mysqli_query($conn, "SELECT * FROM room");
                 <!-- Path gambar harus keluar folder reservasi dulu -->
                 <img src="../assets/img/room/<?= $row['gambar']; ?>" class="card-img-top img-room" alt="Room Image">
                 <div class="card-body text-center">
-                    <h4 class="fw-bold mb-2"><?= $row['nama_area']; ?></h4>
+                    <h4 class="fw-bold mb-2 text-white"><?= $row['nama_area']; ?></h4>
                     <p class="small text-secondary mb-3">Kapasitas: <?= $row['kapasitas']; ?> Orang</p>
                     <div class="badge <?= $class_warna; ?> py-2 px-3 mb-4 w-100">
                         <?= strtoupper($row['status']); ?>

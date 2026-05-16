@@ -231,7 +231,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <img src="<?= get_gambar($conn, $img_event_banner2, 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80') ?>" class="img-fluid rounded" style="height: 200px; object-fit: cover; width: 100%;">
                 </div>
             </div>
-            <a href="index.php" class="btn btn-jo mb-5">Reservasi</a>
+            <a href="page_reservasi.php" class="btn btn-jo mb-5">Reservasi</a>
             <div class="row justify-content-center gap-4">
                 <div class="col-md-3">
                     <div class="img-card"><img src="<?= get_gambar($conn, $img_event_card1, 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=400&q=80') ?>" alt="Prewedding"></div>
@@ -260,7 +260,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <img src="<?= get_gambar($conn, $img_tempat_banner2, 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80') ?>" class="img-fluid rounded" style="height: 200px; object-fit: cover; width: 100%;">
                 </div>
             </div>
-            <a href="index.php" class="btn btn-jo mb-5">Reservasi</a>
+            <a href="page_reservasi.php" class="btn btn-jo mb-5">Reservasi</a>
             <div class="row justify-content-center gap-4">
                 <div class="col-md-3">
                     <div class="img-card"><img src="<?= get_gambar($conn, $img_tempat_card1, 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=80') ?>" alt="Ruang 1"></div>
@@ -350,9 +350,9 @@ function get_gambar($conn, $id_gallery, $default_url) {
                 <div class="col-md-3">
                     <h6 class="text-warning">Reservation</h6>
                     <ul class="list-unstyled small" style="line-height: 2;">
-                        <li><a href="index.php" class="text-decoration-none text-light">Room 1</a></li>
-                        <li><a href="index.php" class="text-decoration-none text-light">Room 2</a></li>
-                        <li><a href="index.php" class="text-decoration-none text-light">Room 3</a></li>
+                        <li><a href="page_reservasi.php" class="text-decoration-none text-light">Room 1</a></li>
+                        <li><a href="page_reservasi.php" class="text-decoration-none text-light">Room 2</a></li>
+                        <li><a href="page_reservasi.php" class="text-decoration-none text-light">Room 3</a></li>
                     </ul>
                 </div>
                 <div class="col-md-6 text-end">
