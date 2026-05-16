@@ -1,35 +1,28 @@
 <?php
 include "../config/koneksi.php";
 
-//  SATPAM FLOW: Cek apakah ada id_room di URL?
+// ==========================================
+// 1. SATPAM FLOW: Validasi Akses ID Room
+// ==========================================
 if (!isset($_GET['id_room']) || empty($_GET['id_room'])) {
-    // kalau nggak ada ID, tendang balik ke halaman pemilihan meja (detail.php)
     echo "<script>alert('Silakan pilih meja yang tersedia terlebih dahulu!'); window.location='detail.php';</script>";
     exit;
 }
 
-//  Ambil ID dari URL
 $id_room_dipilih = $_GET['id_room'];
-
-//  Validasi Tambahan: Cek apakah ID tersebut benar-benar ada di database?
 $cek_meja = mysqli_query($conn, "SELECT * FROM room WHERE id_room = '$id_room_dipilih'");
 
 if (mysqli_num_rows($cek_meja) == 0) {
-    // Kalau ID asal-asalan (nggak ada di DB), tendang juga!
     header("Location: detail.php");
     exit;
 }
 
-// Jika lolos semua satpam di atas, baru ambil datanya untuk ditampilkan di form
 $info = mysqli_fetch_assoc($cek_meja);
-$nama_area_tampil = $info['nama_area'];
-$kapasitas_tampil = $info['kapasitas'];
+$data_room = $info; // Konsistensi variabel untuk form
 
-// 1. Logika Ambil Data Room (Untuk menampilkan info room yang dipilih di form)
-$query_room = mysqli_query($conn, "SELECT * FROM room WHERE id_room = '$id_room_dipilih'");
-$data_room = mysqli_fetch_assoc($query_room);
-
-// 2. Logika Submit Form 
+// ==========================================
+// 2. LOGIKA SUBMIT FORM (PROSES SIMPAN)
+// ==========================================
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     
     $nama        = mysqli_real_escape_string($conn, $_POST['nama']);
@@ -48,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     $bukti_tmp  = $_FILES['bukti_pembayaran']['tmp_name'];
     $bukti_baru = time() . '_' . $bukti_nama;
     
-    // Pindahkan file ke folder bukti
     move_uploaded_file($bukti_tmp, "../assets/img/bukti/" . $bukti_baru);
 
     // --- TAHAP 1: INPUT KE PELANGGAN ---
@@ -61,18 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
         $id_pelanggan = mysqli_insert_id($conn);
     }
 
-    // --- TAHAP 2: INPUT KE RESERVASI_ROOM (Langsung gabung ke sini, tanpa detail_reservasi) ---
+    // --- TAHAP 2: INPUT KE RESERVASI_ROOM ---
     $query_res = "INSERT INTO reservasi_room (id_pelanggan, id_room, tanggal_reservasi, jam_mulai, jam_selesai, bukti_pembayaran, nama_event, deskripsi) 
                   VALUES ('$id_pelanggan', '$id_room', '$tgl', '$jam_mulai', '$jam_selesai', '$bukti_baru', '$nama_event', '$deskripsi')";
 
     if (mysqli_query($conn, $query_res)) {
-        // Ambil ID reservasi yang baru saja masuk
         $id_baru = mysqli_insert_id($conn);
         
-        // Update status room jadi Dipesan
+        // Update status room jadi Dipesan (Otomatis Merah)
         mysqli_query($conn, "UPDATE room SET status = 'Dipesan' WHERE id_room = '$id_room'");
         
-        // Langsung arahkan ke halaman nota
         header("Location: nota.php?id=$id_baru");
         exit();
     } else {
@@ -99,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
         .btn-gold { background-color: var(--accent-gold); color: white; font-weight: 700; padding: 14px; border-radius: 8px; border:none; }
         .section-title { font-weight: 800; border-bottom: 2px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 25px; color: var(--accent-gold); }
         .form-card input {border-color:var(--accent-gold);}
+        .box {border: 1px solid; border-color:var(--accent-gold);}
     </style>
 </head>
 <body>
@@ -106,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand fs-4" href="#">JO CAFE.</a>
-            <a href="detail_reservasi.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
+            <a href="detail.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
         </div>
     </nav>
 
@@ -142,9 +133,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Jenis Reservasi</label>
-                                <select name="jenis" id="jenis_reservasi" class="form-select"  style="background-color: var(--bg-card); border-color:var(--accent-gold);" required>
+                                <select name="jenis" id="jenis_reservasi" class="form-select" style="background-color: var(--bg-card); border-color:var(--accent-gold);" required>
                                     <option value="Makan-Makan">Makan-Makan</option>
-                                    <option value="ulang tahun">ulang tahun</option>
+                                    <option value="ulang tahun">Ulang Tahun</option>
                                     <option value="Rapat">Rapat</option>
                                 </select>
                             </div>
@@ -172,11 +163,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 
                         <div class="mb-4">
                             <label class="form-label">Catatan Tambahan</label>
-                            <textarea name="deskripsi" class="form-control"  style="border-color:var(--accent-gold);" rows="3"></textarea>
+                            <textarea name="deskripsi" class="form-control" style="border-color:var(--accent-gold);" rows="3"></textarea>
                         </div>
 
                         <h5 class="section-title">3. Konfirmasi Pembayaran</h5>
+                        <div class="mb-4 box p-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <p class="text-center">Via QRIS</p>
+                                    <button type="button" class="btn btn-gold w-100" data-bs-toggle="modal" data-bs-target="#modalQRIS">
+                                        <i class="fas fa-qrcode me-2"></i>QRIS
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <p class="text-center">Via Rekening </p>
+                                    <button type="button" class="btn btn-gold w-100" onclick="alert('BCA Jo Cafe: 0241464007 \na.n Jo Cafe Official')">
+                                        BCA 0241464007 / ITA KRISTANTI
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
+                            <label class="form-label text-muted small">Upload Bukti Pembayaran (JPG/PNG)</label>
                             <input type="file" name="bukti_pembayaran" class="form-control" accept="image/*" required>
                         </div>
 
@@ -189,10 +198,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
         </div>
     </div>
 
+    <div class="modal fade" id="modalQRIS" tabindex="-1" aria-labelledby="modalQRISLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: #1c2128; border: 1px solid #f89d13; border-radius: 16px;">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title text-white fw-bold" id="modalQRISLabel">
+                        <i class="fas fa-qrcode me-2 text-warning"></i>Pembayaran QRIS
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center pb-5">
+                    <p class="text-muted small mb-4">Silakan scan kode QRIS di bawah ini untuk DP Reservasi.</p>
+                    <div class="p-3 bg-white d-inline-block rounded-3 mb-4">
+                        <img src="../assets/img/dll/img.jpeg" class="img-fluid" style="max-width: 250px;" alt="QRIS Jo Cafe">
+                    </div>
+                    <div class=" mx-3">
+                        <h6 class="text-white mb-1">Jo Cafe Official</h6>
+                        <span class="text-warning small">NMID: ID1234567890</span>
+                    </div>
+                    <button type="button" class="btn btn-outline-light w-100 mt-3" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         document.getElementById('jenis_reservasi').addEventListener('change', function() {
             var eventDiv = document.getElementById('input_nama_event');
-            if (this.value === 'event') {
+            if (this.value === 'ulang tahun' || this.value === 'Rapat') {
                 eventDiv.style.display = 'block';
             } else {
                 eventDiv.style.display = 'none';

@@ -2,86 +2,47 @@
 session_start();
 require '../config/koneksi.php';
 
-// ==========================================
-// PROSES REGISTER
-// ==========================================
 if (isset($_POST['register'])) {
-
-    // Ambil data dari form
     $username   = trim($_POST['username']);
     $password   = trim($_POST['password']);
     $konfirmasi = trim($_POST['konfirmasi']);
     $role       = trim($_POST['role_staff']);
 
-    // ==========================================
-    // VALIDASI INPUT
-    // ==========================================
-
-    // Cek field kosong
+    // --- VALIDASI ---
     if (empty($username) || empty($password) || empty($konfirmasi) || empty($role)) {
-
         $error = "Semua field wajib diisi!";
-
-    }
-    // Username minimal 4 karakter
-    elseif (strlen($username) < 4) {
-
-        $error = "Username minimal 4 karakter!";
-
-    }
-    // Password minimal 6 karakter
-    elseif (strlen($password) < 6) {
-
-        $error = "Password minimal 6 karakter!";
-
-    }
-    // Konfirmasi password harus sama
-    elseif ($password !== $konfirmasi) {
-
+    } elseif ($password !== $konfirmasi) {
         $error = "Konfirmasi password tidak cocok!";
-
-    }
-    else {
-
-        // ==========================================
-        // CEK USERNAME SUDAH ADA ATAU BELUM
-        // ==========================================
-
+    } else {
         $username_clean = mysqli_real_escape_string($conn, $username);
-
         $cek = mysqli_query($conn, "SELECT * FROM staff WHERE username='$username_clean'");
 
         if (mysqli_num_rows($cek) > 0) {
-
-            $error = "Username sudah terdaftar! Gunakan username lain.";
-
+            $error = "Username sudah terdaftar!";
         } else {
-
-            // ==========================================
-            // HASH PASSWORD
-            // ==========================================
+            // 1. Hash Password
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-            // ==========================================
-            // SIMPAN KE DATABASE
-            // ==========================================
-            $query = "INSERT INTO staff (username, password, role_staff)
-                      VALUES (
-                        '$username_clean',
-                        '$hashed_password',
-                        '$role'
-                      )";
-
+            // 2. SIMPAN KE TABEL UTAMA (staff)
+            $query = "INSERT INTO staff (username, password, role_staff) VALUES ('$username_clean', '$hashed_password', '$role')";
             $simpan = mysqli_query($conn, $query);
 
             if ($simpan) {
+                // 3. AMBIL ID STAFF YANG BARU SAJA DIBUAT
+                $id_staff_baru = mysqli_insert_id($conn);
 
-                $success = "Registrasi berhasil! Silakan login.";
+                // 4. LOGIKA PERCABANGAN: MASUK KE TABEL KHUSUS SESUAI ROLE
+                if ($role == 'admin') {
+                    // Masukkan ke tabel admin
+                    mysqli_query($conn, "INSERT INTO admin (id_staff) VALUES ('$id_staff_baru')");
+                } elseif ($role == 'manager') {
+                    // Masukkan ke tabel manager
+                    mysqli_query($conn, "INSERT INTO manager (id_staff) VALUES ('$id_staff_baru')");
+                }
 
+                $success = "Registrasi berhasil sebagai $role! Silakan login.";
             } else {
-
                 $error = "Gagal menyimpan data: " . mysqli_error($conn);
-
             }
         }
     }

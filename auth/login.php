@@ -10,6 +10,10 @@ if (isset($_SESSION['role_staff'])) {
     exit;
 }
 
+// if ($_SESSION['role_staff'] == 'superadmin') {
+//     header("Location: ../dashboard/super_admin.php");
+// }
+
 // Jika tombol login diklik
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']); // Ganti $conn jadi $koneksi kalau di file koneksi.php lo pakainya $koneksi
