@@ -139,7 +139,7 @@
             <a href="reservasi/detail.php" class="custom-btn">RESERVASI ROOM</a>
             <a href="reservasi/event.php" class="custom-btn">RESERVASI EVENT</a>
             
-            <a href="menu.html" class="custom-btn menu-btn">MENU</a>
+            <!-- <a href="menu.html" class="custom-btn menu-btn">MENU</a> -->
         </div>
     </div>
 

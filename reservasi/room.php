@@ -131,23 +131,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 
                         <h5 class="section-title">2. Detail Acara & Waktu</h5>
                         <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Jenis Reservasi</label>
-                                <select name="jenis" id="jenis_reservasi" class="form-select" style="background-color: var(--bg-card); border-color:var(--accent-gold);" required>
-                                    <option value="Makan-Makan">Makan-Makan</option>
-                                    <option value="ulang tahun">Ulang Tahun</option>
-                                    <option value="Rapat">Rapat</option>
-                                </select>
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Jenis Reservasi</label>
+
+                            <select 
+                                name="jenis" 
+                                id="jenis_reservasi" 
+                                class="form-select"
+                                style="background-color: var(--bg-card); border-color:var(--accent-gold);" 
+                                required
+                            >
+                                <option value="">-- Pilih Jenis Reservasi --</option>
+
+                                <option value="Dine In">Dine In / Makan Bersama</option>
+
+                                <option value="Birthday">Perayaan Ulang Tahun</option>
+
+                                <option value="Meeting">Meeting / Rapat</option>
+
+                                <option value="Family Gathering">Family Gathering</option>
+
+                                <option value="Private Event">Private Event</option>
+
+                                <option value="Anniversary">Anniversary</option>
+
+                                <option value="Komunitas">Gathering Komunitas</option>
+
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Kedatangan</label>
                                 <input type="date" name="tanggal_reservasi" class="form-control" required>
                             </div>
-                        </div>
-
-                        <div class="mb-3" id="input_nama_event" style="display: none;">
-                            <label class="form-label">Nama Acara</label>
-                            <input type="text" name="nama_event" id="field_event" class="form-control">
                         </div>
 
                         <div class="row g-3 mb-3">
@@ -155,16 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                                 <label class="form-label">Jam Mulai</label>
                                 <input type="time" name="jam_mulai" class="form-control" required>
                             </div>
-                            <div class="col-6">
-                                <label class="form-label">Jam Selesai</label>
-                                <input type="time" name="jam_selesai" class="form-control" required>
-                            </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label">Catatan Tambahan</label>
-                            <textarea name="deskripsi" class="form-control" style="border-color:var(--accent-gold);" rows="3"></textarea>
-                        </div>
 
                         <h5 class="section-title">3. Konfirmasi Pembayaran</h5>
                         <div class="mb-4 box p-3">
