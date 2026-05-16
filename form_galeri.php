@@ -91,7 +91,7 @@ if (isset($_GET['hapus'])) {
 <body>
 
 <div class="content">
-    <a href="../dashboard/admin.php" class="back">← Kembali</a>
+    <!-- <a href="../dashboard/admin.php" class="back">← Kembali</a> -->
     <div class="title">Management Gallery</div>
 
     <div class="grid">
@@ -121,10 +121,10 @@ if (isset($_GET['hapus'])) {
         </div>
 
         <div class="card" style="flex:1;">
-            <h3 style="margin-top:0;">Data Gallery</h3>
+            <h3 style="margin-top:0; color:white;">Data Gallery</h3>
             <table>
                 <thead>
-                    <tr>
+                    <tr class="text-white">
                         <th>Foto</th>
                         <th>Kategori</th>
                         <th>Tanggal</th>
@@ -137,7 +137,7 @@ if (isset($_GET['hapus'])) {
                     while ($g = mysqli_fetch_assoc($get_galeri)) { 
                         $path = "assets/img/gallery/".$g['gambar'];
                     ?>
-                    <tr>
+                    <tr class="text-white">
                         <td><img src="<?php echo file_exists($path) ? $path : 'https://via.placeholder.com/80x50'; ?>"></td>
                         <td><span style="text-transform: capitalize;"><?php echo $g['kategori']; ?></span></td>
                         <td><?php echo $g['tanggal']; ?></td>

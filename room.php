@@ -1,7 +1,6 @@
 <?php
-// 1. KONEKSI DATABASE (Pastikan nama database lo bener 'jocafee' atau 'jocafe')
-$conn = mysqli_connect("localhost", "root", "", "jocafee");
-if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
+// 1. KONEKSI DATABASE
+include_once "../config/koneksi.php";
 
 // 2. LOGIKA TAMBAH DATA AREA
 if (isset($_POST['tambah'])) {
@@ -15,19 +14,20 @@ if (isset($_POST['tambah'])) {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']); 
         $tmp_file = $_FILES['gambar']['tmp_name'];
         
-        // Path fisik buat mindahin file ke folder (Tanpa ../ karena file di root)
-        $direktori = "assets/img/room/"; 
+        // JALUR DIPERBAIKI: Tambah ../ 
+        $direktori = "../assets/img/room/"; 
         
         // Pindahkan file dari memori sementara ke folder assets
         move_uploaded_file($tmp_file, $direktori . $nama_file);
     }
     
-    // Insert ke database (Pakai NULL untuk id_admin & id_detail_reservasi)
+    // Insert ke database
     $query = "INSERT INTO room (id_admin, id_detail_reservasi, nama_area, kapasitas, gambar, status) 
               VALUES (NULL, NULL, '$nama', '$kapasitas', '$nama_file', 'Tersedia')";
               
     mysqli_query($conn, $query);
-    header("Location: room.php");
+    // REDIRECT DIPERBAIKI
+    header("Location: admin.php?page=room");
     exit;
 }
 
@@ -45,7 +45,8 @@ if (isset($_POST['update'])) {
     if (isset($_FILES['gambar_baru']['name']) && $_FILES['gambar_baru']['name'] != '') {
         $nama_file = time() . "_" . basename($_FILES['gambar_baru']['name']);
         $tmp_file = $_FILES['gambar_baru']['tmp_name'];
-        $direktori = "assets/img/room/";
+        // JALUR DIPERBAIKI: Tambah ../
+        $direktori = "../assets/img/room/";
         
         move_uploaded_file($tmp_file, $direktori . $nama_file);
         
@@ -56,7 +57,8 @@ if (isset($_POST['update'])) {
     }
     
     mysqli_query($conn, "UPDATE room SET nama_area='$nama', kapasitas='$kapasitas', status='$status', gambar='$nama_file' WHERE id_room='$id'");
-    header("Location: room.php");
+    // REDIRECT DIPERBAIKI
+    header("Location: admin.php?page=room");
     exit;
 }
 
@@ -67,63 +69,54 @@ if (isset($_GET['hapus'])) {
     // Hapus file fisik dulu
     $cek_foto = mysqli_query($conn, "SELECT gambar FROM room WHERE id_room = '$id'");
     $data_foto = mysqli_fetch_assoc($cek_foto);
-    if (!empty($data_foto['gambar']) && file_exists("assets/img/room/" . $data_foto['gambar'])) {
-        unlink("assets/img/room/" . $data_foto['gambar']);
+    // JALUR DIPERBAIKI: Tambah ../
+    if (!empty($data_foto['gambar']) && file_exists("../assets/img/room/" . $data_foto['gambar'])) {
+        unlink("../assets/img/room/" . $data_foto['gambar']);
     }
 
     // Baru hapus data dari database
     mysqli_query($conn, "DELETE FROM room WHERE id_room = '$id'");
-    header("Location: room.php");
+    // REDIRECT DIPERBAIKI
+    header("Location: admin.php?page=room");
     exit;
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Room Management - Jo Cafe</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .room-content { font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+    .header-title { font-weight: 800; font-size: 2.2rem; margin-bottom: 0; }
+    .management-card { background-color: #111826; border: 1px solid #1f2937; border-radius: 12px; padding: 35px; margin-top: 30px; }
+    .table { color: white; }
+    .table thead th { color: #f89b1c; border-bottom: 2px solid #1f2937; padding: 15px 10px; background-color: transparent; }
+    .table tbody td { padding: 20px 10px; border-bottom: 1px solid #1f2937; vertical-align: middle; background-color: transparent; }
     
-    <style>
-        body { background-color: #0a0e17; color: white; font-family: 'Poppins', sans-serif; padding: 60px 0; }
-        .header-title { font-weight: 800; font-size: 2.2rem; margin-bottom: 0; }
-        .management-card { background-color: #111826; border: 1px solid #1f2937; border-radius: 12px; padding: 35px; margin-top: 30px; }
-        .table { color: white; }
-        .table thead th { color: #f89b1c; border-bottom: 2px solid #1f2937; padding: 15px 10px; background-color: transparent; }
-        .table tbody td { padding: 20px 10px; border-bottom: 1px solid #1f2937; vertical-align: middle; background-color: transparent; }
-        
-        .badge-status { padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
-        .bg-available { background-color: rgba(39, 174, 96, 0.15); color: #2ecc71; border: 1px solid rgba(39, 174, 96, 0.3); }
-        .bg-booked { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+    .badge-status { padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; }
+    .bg-available { background-color: rgba(39, 174, 96, 0.15); color: #2ecc71; border: 1px solid rgba(39, 174, 96, 0.3); }
+    .bg-booked { background-color: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
 
-        .btn-jo { background-color: #f89b1c; color: #ffffff; font-weight: 600; border: none; border-radius: 6px; padding: 10px 24px; transition: all 0.2s; }
-        .btn-jo:hover { background-color: #e08915; color: #ffffff; }
+    .btn-jo { background-color: #f89b1c; color: #ffffff; font-weight: 600; border: none; border-radius: 6px; padding: 10px 24px; transition: all 0.2s; }
+    .btn-jo:hover { background-color: #e08915; color: #ffffff; }
 
-        .btn-action { font-weight: 500; font-size: 0.85rem; padding: 6px 12px; border-radius: 4px; text-decoration: none; border: none; cursor: pointer;}
-        .btn-edit { color: #f89b1c; border: 1px solid rgba(248, 155, 28, 0.3); background: rgba(248, 155, 28, 0.05); }
-        .btn-delete { color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); background: rgba(231, 76, 60, 0.05); margin-left: 8px; }
+    .btn-action { font-weight: 500; font-size: 0.85rem; padding: 6px 12px; border-radius: 4px; text-decoration: none; border: none; cursor: pointer;}
+    .btn-edit { color: #f89b1c; border: 1px solid rgba(248, 155, 28, 0.3); background: rgba(248, 155, 28, 0.05); }
+    .btn-delete { color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); background: rgba(231, 76, 60, 0.05); margin-left: 8px; }
 
-        .form-control, .form-select { background-color: #0f1520; border: 1px solid #1f2937; color: #fff; padding: 12px 15px; border-radius: 6px; }
-        .form-control:focus, .form-select:focus { background-color: #0f1520; border-color: #f89b1c; color: #fff; box-shadow: none; }
-        
-        .form-control::file-selector-button {
-            background-color: #f89b1c; color: black; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; margin-right: 15px; cursor: pointer; transition: 0.2s;
-        }
-        .form-control::file-selector-button:hover { background-color: white; }
+    .form-control, .form-select { background-color: #0f1520; border: 1px solid #1f2937; color: #fff; padding: 12px 15px; border-radius: 6px; }
+    .form-control:focus, .form-select:focus { background-color: #0f1520; border-color: #f89b1c; color: #fff; box-shadow: none; }
+    
+    .form-control::file-selector-button {
+        background-color: #f89b1c; color: black; border: none; padding: 8px 16px; border-radius: 4px; font-weight: 600; margin-right: 15px; cursor: pointer; transition: 0.2s;
+    }
+    .form-control::file-selector-button:hover { background-color: white; }
 
-        .modal-content { background-color: #111826; border: 1px solid #1f2937; border-radius: 12px; }
-        .modal-header { border-bottom: 1px solid #1f2937; }
-        .modal-footer { border-top: 1px solid #1f2937; }
-        .modal-title { font-weight: 700; color: #f89b1c; }
-        .text-label { color: #8b95a5; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; display: block; }
-    </style>
-</head>
-<body>
+    .modal-content { background-color: #111826; border: 1px solid #1f2937; border-radius: 12px; color: white;}
+    .modal-header { border-bottom: 1px solid #1f2937; }
+    .modal-footer { border-top: 1px solid #1f2937; }
+    .modal-title { font-weight: 700; color: #f89b1c; }
+    .text-label { color: #8b95a5; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; display: block; }
+</style>
 
-<div class="container" style="max-width: 1050px;">
+<div class="container room-content" style="max-width: 1050px;">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="header-title">Management <span style="color: #f89b1c;">Room</span></h1>
@@ -153,34 +146,32 @@ if (isset($_GET['hapus'])) {
                         $is_avail = ($row['status'] == 'Tersedia');
                         $badge_class = $is_avail ? 'bg-available' : 'bg-booked';
                         
-                        // JALUR FOTO (Tanpa ../ karena file PHP ada di luar/root)
-                        $foto = !empty($row['gambar']) ? "assets/img/room/".$row['gambar'] : "https://via.placeholder.com/100x70?text=No+Image";
+                        // JALUR FOTO DIPERBAIKI: Tambah ../ 
+                        $foto = !empty($row['gambar']) ? "../assets/img/room/".$row['gambar'] : "https://via.placeholder.com/100x70?text=No+Image";
                     ?>
                     <tr>
                         <td>
-                            <!-- TAG IMG UNTUK MENAMPILKAN FOTO -->
                             <img src="<?= $foto; ?>" alt="Foto" style="width: 80px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #1f2937; background-color: #0f1520;">
                         </td>
                         <td>
-                            <div style="font-weight: 600; font-size: 1.05rem;"><?= htmlspecialchars($row['nama_area']); ?></div>
+                            <div style="font-weight: 600; font-size: 1.05rem; color:white;"><?= htmlspecialchars($row['nama_area']); ?></div>
                         </td>
                         <td class="text-center">
-                            <span style="font-weight: 500;"><?= $row['kapasitas']; ?> Orang</span>
+                            <span style="font-weight: 500; color:white" ><?= $row['kapasitas']; ?> Orang</span>
                         </td>
                         <td class="text-center">
                             <span class="badge-status <?= $badge_class; ?>"><?= $row['status']; ?></span>
                         </td>
                         <td class="text-end">
                             <button type="button" class="btn-action btn-edit" data-bs-toggle="modal" data-bs-target="#editModal<?= $row['id_room']; ?>">Edit</button>
-                            <a href="?hapus=<?= $row['id_room']; ?>" class="btn-action btn-delete" onclick="return confirm('Hapus area ini?')">Hapus</a>
+                            <a href="admin.php?page=room&hapus=<?= $row['id_room']; ?>" class="btn-action btn-delete" onclick="return confirm('Hapus area ini?')">Hapus</a>
                         </td>
                     </tr>
 
-                    <!-- MODAL EDIT DATA -->
                     <div class="modal fade" id="editModal<?= $row['id_room']; ?>" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
-                                <form method="POST" enctype="multipart/form-data">
+                                <form action="admin.php?page=room" method="POST" enctype="multipart/form-data">
                                     <div class="modal-header p-4 pb-3">
                                         <h5 class="modal-title">Edit Data Area</h5>
                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -225,11 +216,10 @@ if (isset($_GET['hapus'])) {
     </div>
 </div>
 
-<!-- MODAL TAMBAH DATA AREA -->
 <div class="modal fade" id="addModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form method="POST" enctype="multipart/form-data">
+            <form action="admin.php?page=room" method="POST" enctype="multipart/form-data">
                 <div class="modal-header p-4 pb-3">
                     <h5 class="modal-title">Tambah Area Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -257,5 +247,3 @@ if (isset($_GET['hapus'])) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
