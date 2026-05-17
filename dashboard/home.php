@@ -168,7 +168,7 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Nama</th>
+                        <th>Nama Pemesan</th>
                         <th>Jenis</th>
                         <th>Tanggal</th>
                         <th>Status</th>
@@ -177,13 +177,15 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                 </thead>
                 <tbody>
                     <?php
-                    // 1. QUERY DIPERBAIKI: Hapus filter WHERE biar semua data tetap tampil
+                    // 1. QUERY DIPERBAIKI: JOIN dengan tabel pelanggan buat ngambil 'nama'
                     $sql_gabungan = "
-                        (SELECT id_reservasi_room AS id, id_pelanggan, tanggal_reservasi AS tgl, 'Room' AS jenis, bukti_pembayaran AS bukti, id_room AS item_id, IFNULL(status_pesanan, 'Aktif') as status_db 
-                         FROM reservasi_room)
+                        (SELECT r.id_reservasi_room AS id, r.id_pelanggan, p.nama AS nama_pelanggan, r.tanggal_reservasi AS tgl, 'Room' AS jenis, r.bukti_pembayaran AS bukti, r.id_room AS item_id, IFNULL(r.status_pesanan, 'Aktif') as status_db 
+                         FROM reservasi_room r
+                         JOIN pelanggan p ON r.id_pelanggan = p.id_pelanggan)
                         UNION
-                        (SELECT id_event_res AS id, id_pelanggan, tanggal_event AS tgl, 'Event' AS jenis, NULL AS bukti, 0 AS item_id, 'Aktif' as status_db 
-                         FROM reservasi_event)
+                        (SELECT e.id_event_res AS id, e.id_pelanggan, p.nama AS nama_pelanggan, e.tanggal_event AS tgl, 'Event' AS jenis, NULL AS bukti, 0 AS item_id, 'Aktif' as status_db 
+                         FROM reservasi_event e
+                         JOIN pelanggan p ON e.id_pelanggan = p.id_pelanggan)
                         ORDER BY tgl DESC LIMIT 5
                     ";
 
@@ -193,7 +195,7 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                         while ($row = mysqli_fetch_assoc($query_terbaru)) {
                             $badge_warna = ($row['jenis'] == 'Room') ? 'bg-warning text-dark' : 'bg-info text-dark';
                             
-                            // 2. LOGIKA STATUS: Ganti tulisan & warna kalau udah 'Selesai'
+                            // LOGIKA STATUS
                             if ($row['status_db'] == 'Selesai') {
                                 $status_txt = 'Selesai';
                                 $warna_status = 'text-success fw-bold';
@@ -204,7 +206,12 @@ $jml_room = $query_room ? mysqli_num_rows($query_room) : 0;
                     ?>
                         <tr>
                             <td>#<?php echo $row['id']; ?></td>
-                            <td>User ID: <?php echo $row['id_pelanggan']; ?></td>
+                            
+                            <td>
+                                <span class="fw-bold"><?php echo htmlspecialchars($row['nama_pelanggan']); ?></span><br>
+                                <small class="text-muted" style="font-size: 11px;">ID Pelanggan: <?php echo $row['id_pelanggan']; ?></small>
+                            </td>
+                            
                             <td><span class="badge <?php echo $badge_warna; ?>"><?php echo $row['jenis']; ?></span></td>
                             <td><?php echo date('Y-m-d', strtotime($row['tgl'])); ?></td>
                             <td><span class="<?php echo $warna_status; ?>"><?php echo $status_txt; ?></span></td>
