@@ -1,4 +1,9 @@
 <?php
+// Pastikan session sudah dimulai di admin.php, jika belum atau berdiri sendiri, aktifkan session_start()
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // KONEKSI DATABASE
 include_once "../config/koneksi.php";
 
@@ -16,23 +21,25 @@ if (isset($_POST['update_artikel'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
     $isi = mysqli_real_escape_string($conn, $_POST['isi']);
     $tanggal = date('Y-m-d H:i:s');
+    
+    // Log Aktivitas: Ambil ID Admin yang sedang login dari session
+    $id_admin = $_SESSION['id_admin'] ?? 'NULL';
 
     if ($_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . $_FILES['gambar']['name'];
-        // JALUR DIPERBAIKI: Tambah ../
         move_uploaded_file($_FILES['gambar']['tmp_name'], "../assets/img/blog/" . $nama_file);
 
         mysqli_query($conn, "UPDATE blog 
-            SET judul='$judul', isi='$isi', gambar='$nama_file', tanggal='$tanggal'
+            SET id_admin=$id_admin, judul='$judul', isi='$isi', gambar='$nama_file', tanggal='$tanggal'
             WHERE id_blog='$id'");
     } else {
         mysqli_query($conn, "UPDATE blog 
-            SET judul='$judul', isi='$isi', tanggal='$tanggal'
+            SET id_admin=$id_admin, judul='$judul', isi='$isi', tanggal='$tanggal'
             WHERE id_blog='$id'");
     }
 
-    // REDIRECT DIPERBAIKI
-    header("Location: admin.php?page=blog");
+    // FIX HEADERS: Menggunakan JavaScript Redirect agar sinkron dengan template admin
+    echo "<script>window.location.href='admin.php?page=blog';</script>";
     exit;
 }
 
@@ -41,20 +48,22 @@ if (isset($_POST['tambah_artikel'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
     $isi = mysqli_real_escape_string($conn, $_POST['isi']);
     $tanggal = date('Y-m-d H:i:s');
+    
+    // Log Aktivitas: Ambil ID Admin yang sedang login dari session
+    $id_admin = $_SESSION['id_admin'] ?? 'NULL';
 
     $nama_file = "";
 
     if ($_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']);
-        // JALUR DIPERBAIKI: Tambah ../
         move_uploaded_file($_FILES['gambar']['tmp_name'], "../assets/img/blog/" . $nama_file);
     }
 
-    mysqli_query($conn, "INSERT INTO blog (judul, isi, gambar, tanggal) 
-                         VALUES ('$judul','$isi','$nama_file','$tanggal')");
+    mysqli_query($conn, "INSERT INTO blog (id_admin, judul, isi, gambar, tanggal) 
+                         VALUES ($id_admin, '$judul', '$isi', '$nama_file', '$tanggal')");
 
-    // REDIRECT DIPERBAIKI
-    header("Location: admin.php?page=blog");
+    // FIX HEADERS: Menggunakan JavaScript Redirect
+    echo "<script>window.location.href='admin.php?page=blog';</script>";
     exit;
 }
 
@@ -65,14 +74,14 @@ if (isset($_GET['hapus'])) {
     $cek = mysqli_query($conn, "SELECT gambar FROM blog WHERE id_blog='$id'");
     $data = mysqli_fetch_assoc($cek);
 
-    // JALUR DIPERBAIKI: Tambah ../
     if (!empty($data['gambar']) && file_exists("../assets/img/blog/".$data['gambar'])) {
         unlink("../assets/img/blog/".$data['gambar']);
     }
 
     mysqli_query($conn, "DELETE FROM blog WHERE id_blog='$id'");
-    // REDIRECT DIPERBAIKI
-    header("Location: admin.php?page=blog");
+    
+    // FIX HEADERS: Menggunakan JavaScript Redirect
+    echo "<script>window.location.href='admin.php?page=blog';</script>";
     exit;
 }
 ?>
@@ -138,7 +147,6 @@ if (isset($_GET['hapus'])) {
                     <?php
                     $res = mysqli_query($conn, "SELECT * FROM blog ORDER BY id_blog DESC");
                     while ($row = mysqli_fetch_assoc($res)) :
-                        // JALUR FOTO DIPERBAIKI: Tambah ../
                         $foto = $row['gambar'] ? "../assets/img/blog/".$row['gambar'] : "https://via.placeholder.com/60";
                     ?>
                     <tr>

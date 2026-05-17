@@ -1,10 +1,11 @@
 <?php
-// 1. KONEKSI DATABASE (Disarankan pakai include_once agar tidak bentrok)
-include_once "../config/koneksi.php";
+// Pastikan session sudah aktif dari admin.php untuk mengambil id_admin
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Jika file koneksi.php belum ada, pakai yang lama:
-// $conn = mysqli_connect("localhost", "root", "", "jocafee");
-// if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
+// 1. KONEKSI DATABASE
+include_once "../config/koneksi.php";
 
 // --- FITUR EDIT: AMBIL DATA LAMA ---
 $is_edit = false;
@@ -23,19 +24,19 @@ if (isset($_POST['simpan'])) {
     $kategori = $_POST['kategori'];
     $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
     $harga = str_replace(['.', ','], '', $_POST['harga']);
-    $id_target = $_POST['id_menu']; // ID untuk update
+    $id_target = $_POST['id_menu']; 
+    
+    // Ambil ID Admin yang sedang login untuk kebutuhan audit/log data
+    $id_admin = $_SESSION['id_admin'] ?? 'NULL';
 
-    $nama_file = $_POST['gambar_lama']; // Default pake gambar lama
+    $nama_file = $_POST['gambar_lama']; 
     
     // Cek jika ada upload gambar baru
     if (!empty($_FILES['gambar']['tmp_name'])) {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']);
-        
-        // JALUR DIPERBAIKI: Tambah ../ karena admin.php ada di dalam folder dashboard
         $direktori = "../assets/img/menu/"; 
         
         if (move_uploaded_file($_FILES['gambar']['tmp_name'], $direktori . $nama_file)) {
-            // Hapus file lama jika ada dan bukan gambar default
             if (!empty($_POST['gambar_lama']) && file_exists($direktori . $_POST['gambar_lama'])) {
                 unlink($direktori . $_POST['gambar_lama']);
             }
@@ -43,8 +44,9 @@ if (isset($_POST['simpan'])) {
     }
 
     if ($id_target) {
-        // Query Update
+        // Query Update - Menyimpan log id_admin yang mengedit menu
         $query = "UPDATE menu SET 
+                    id_admin = $id_admin,
                     nama_item = '$nama', 
                     kategori = '$kategori', 
                     deskripsi = '$deskripsi', 
@@ -52,15 +54,15 @@ if (isset($_POST['simpan'])) {
                     gambar = '$nama_file' 
                   WHERE id_menu = '$id_target'";
     } else {
-        // Query Insert
-        $query = "INSERT INTO menu (nama_item, kategori, deskripsi, harga, gambar) 
-                  VALUES ('$nama', '$kategori', '$deskripsi', '$harga', '$nama_file')";
+        // Query Insert - Menyimpan log id_admin yang mendaftarkan menu baru
+        $query = "INSERT INTO menu (id_admin, nama_item, kategori, deskripsi, harga, gambar) 
+                  VALUES ($id_admin, '$nama', '$kategori', '$deskripsi', '$harga', '$nama_file')";
     }
     
     mysqli_query($conn, $query);
     
-    // REDIRECT DIPERBAIKI: Arahkan kembali ke admin.php?page=menu
-    header("Location: admin.php?page=menu");
+    // FIX HEADERS: Gunakan JavaScript Redirect agar template dynamic admin tidak error
+    echo "<script>window.location.href='admin.php?page=menu';</script>";
     exit;
 }
 
@@ -70,20 +72,19 @@ if (isset($_GET['hapus'])) {
     $cek = mysqli_query($conn, "SELECT gambar FROM menu WHERE id_menu = '$id'");
     $data = mysqli_fetch_assoc($cek);
     
-    // JALUR DIPERBAIKI: Tambah ../ 
     if (!empty($data['gambar']) && file_exists("../assets/img/menu/" . $data['gambar'])) {
         unlink("../assets/img/menu/" . $data['gambar']);
     }
     mysqli_query($conn, "DELETE FROM menu WHERE id_menu = '$id'");
     
-    // REDIRECT DIPERBAIKI
-    header("Location: admin.php?page=menu");
+    // FIX HEADERS: Gunakan JavaScript Redirect
+    echo "<script>window.location.href='admin.php?page=menu';</script>";
     exit;
 }
 ?>
 
 <style>
-    .content-menu { padding:20px; max-width:1100px; margin:auto; color: white; }
+    .content-menu { padding:20px; max-width:1100px; margin:auto; color: white; font-family: 'Plus Jakarta Sans', sans-serif;}
     .title { font-size:24px; margin-bottom:20px; font-weight: bold;}
     .stats { margin-bottom:20px; }
     .stat-box { background:#1c2128; padding:20px; border-radius:10px; border: 1px solid #444; }
@@ -95,8 +96,8 @@ if (isset($_GET['hapus'])) {
     input, select, textarea { width:100%; padding:10px; margin:8px 0; background:#13171c; color:white; border:1px solid #444; border-radius:6px; box-sizing: border-box; }
     .btn-submit { width:100%; padding:10px; background:#f89d13; border:none; cursor:pointer; border-radius:6px; font-weight:bold; margin-top: 10px; color: black;}
     .img-menu { width:60px; height:60px; object-fit:cover; border-radius:5px; background: #13171c; }
-    .btn-del { color: #ff4d4d; text-decoration: none; font-size: 13px; font-weight: bold; margin-left: 10px; }
-    .btn-edit { color: #f89d13; text-decoration: none; font-size: 13px; font-weight: bold; }
+    .btn-del { background: crimson; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; margin-left: 5px; }
+    .btn-edit { background: orange; color: black; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; }
     .cancel-edit { display: block; text-align: center; margin-top: 10px; color: #aaa; text-decoration: none; font-size: 12px; }
 </style>
 
@@ -152,14 +153,13 @@ if (isset($_GET['hapus'])) {
                         <th>Nama</th>
                         <th>Kategori</th>
                         <th>Harga</th>
-                        <th class="text-center">Aksi</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php 
-                    $get_menu = mysqli_query($conn, "SELECT * FROM menu ORDER BY kategori ASC");
+                    $get_menu = mysqli_query($conn, "SELECT * FROM menu ORDER BY kategori ASC, id_menu DESC");
                     while ($m = mysqli_fetch_assoc($get_menu)) { 
-                        // JALUR RENDER GAMBAR DIPERBAIKI: Tambah ../
                         $path_foto = !empty($m['gambar']) ? "../assets/img/menu/".$m['gambar'] : "https://via.placeholder.com/60x60?text=No+Img";
                     ?>
                     <tr>

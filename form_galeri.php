@@ -3,6 +3,10 @@
 $conn = mysqli_connect("localhost", "root", "", "jocafee");
 if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
 
+// --- TENTUKAN URL INDUK ---
+// Sesuaikan parameter ?page=... dengan nama halaman galeri di sistem dynamic milikmu (contoh: admin.php?page=galeri)
+$url_kembali = "admin.php?page=galeri"; 
+
 // --- FITUR EDIT: AMBIL DATA LAMA ---
 $is_edit = false;
 $edit_data = ['id_gallery' => '', 'kategori' => '', 'gambar' => '', 'tanggal' => ''];
@@ -36,20 +40,22 @@ if (isset($_POST['simpan'])) {
     }
 
     if ($id_target) {
-        // Query Update sesuai struktur SQL
+        // Query Update
         $query = "UPDATE gallery SET 
                     kategori = '$kategori', 
                     tanggal = '$tanggal',
                     gambar = '$nama_file' 
                   WHERE id_gallery = '$id_target'";
     } else {
-        // Query Insert (id_admin diset NULL seperti di dump file)
+        // Query Insert
         $query = "INSERT INTO gallery (id_admin, gambar, kategori, tanggal) 
                   VALUES (NULL, '$nama_file', '$kategori', '$tanggal')";
     }
     
     mysqli_query($conn, $query);
-    header("Location: form_galeri.php");
+    
+    // REDIRECT SINKRON: Kembalikan ke halaman dashboard admin utama agar isi dynamic ter-refresh
+    echo "<script>window.location.href='$url_kembali';</script>";
     exit;
 }
 
@@ -62,7 +68,9 @@ if (isset($_GET['hapus'])) {
         unlink("assets/img/gallery/" . $data['gambar']);
     }
     mysqli_query($conn, "DELETE FROM gallery WHERE id_gallery = '$id'");
-    header("Location: form_galeri.php");
+    
+    // REDIRECT SINKRON: Kembalikan ke halaman dashboard admin utama
+    echo "<script>window.location.href='$url_kembali';</script>";
     exit;
 }
 ?>
@@ -74,7 +82,6 @@ if (isset($_GET['hapus'])) {
     <style>
         body { margin:0; font-family: Arial; background:#13171c; color:white; }
         .content { padding:20px; max-width:1100px; margin:auto; }
-        .back { display:inline-block; margin-bottom:15px; padding:8px 15px; background:#f89d13; color:black; text-decoration:none; border-radius:6px; font-weight:bold; }
         .title { font-size:24px; margin-bottom:20px; }
         .grid { display:flex; gap:20px; align-items:flex-start; }
         .card { background:#1c2128; padding:20px; border-radius:10px; border: 1px solid #444; }
@@ -91,7 +98,6 @@ if (isset($_GET['hapus'])) {
 <body>
 
 <div class="content">
-    <!-- <a href="../dashboard/admin.php" class="back">← Kembali</a> -->
     <div class="title">Management Gallery</div>
 
     <div class="grid">
@@ -115,7 +121,7 @@ if (isset($_GET['hapus'])) {
 
                 <button type="submit" name="simpan"><?php echo $is_edit ? "Update Foto" : "Unggah Foto"; ?></button>
                 <?php if($is_edit): ?>
-                    <a href="form_galeri.php" style="display:block; text-align:center; color:#aaa; font-size:12px; margin-top:10px; text-decoration:none;">Batal</a>
+                    <a href="<?= $url_kembali; ?>" style="display:block; text-align:center; color:#aaa; font-size:12px; margin-top:10px; text-decoration:none;">Batal</a>
                 <?php endif; ?>
             </form>
         </div>
@@ -142,8 +148,8 @@ if (isset($_GET['hapus'])) {
                         <td><span style="text-transform: capitalize;"><?php echo $g['kategori']; ?></span></td>
                         <td><?php echo $g['tanggal']; ?></td>
                         <td>
-                            <a href="?edit=<?php echo $g['id_gallery']; ?>" class="btn-edit">Edit</a>
-                            <a href="?hapus=<?php echo $g['id_gallery']; ?>" class="btn-del" onclick="return confirm('Hapus?')">Hapus</a>
+                            <a href="<?= $url_kembali; ?>&edit=<?php echo $g['id_gallery']; ?>" class="btn-edit">Edit</a>
+                            <a href="<?= $url_kembali; ?>&hapus=<?php echo $g['id_gallery']; ?>" class="btn-del" onclick="return confirm('Hapus?')">Hapus</a>
                         </td>
                     </tr>
                     <?php } ?>
