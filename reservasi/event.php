@@ -89,17 +89,17 @@ if (isset($_POST['ajukan_event'])) {
 
                         <h5 class="section-title">Data Pendaftar</h5>
                         <div class="mb-3">
-                            <label class="form-label" >Nama Lengkap / Instansi</label>
+                            <label class="form-label" >Nama Lengkap / Instansi <span style="color: red;">*</span></label>
                             <input type="text" name="nama_pendaftar" class="form-control"  required>
                         </div>
 
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label">Email Aktif</label>
-                                <input type="email" name="email" class="form-control" required>
+                                <input type="email" name="email" class="form-control" >
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">WhatsApp</label>
+                                <label class="form-label">WhatsApp <span style="color: red;">*</span></label>
                                 <input type="text" name="no_telp" class="form-control" required>
                             </div>
                         </div>
@@ -107,7 +107,7 @@ if (isset($_POST['ajukan_event'])) {
                         <h5 class="section-title">Detail Acara</h5>
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Jenis Event</label>
+                                <label class="form-label">Jenis Event <span style="color: red;">*</span></label>
                                 <select name="jenis_event" class="form-select" style="background-color: var(--bg-card); border-color:var(--accent-gold);" required>
                                     <option value="Birthday">Ulang Tahun</option>
                                     <option value="Meeting">Rapat / Gathering</option>
@@ -116,20 +116,16 @@ if (isset($_POST['ajukan_event'])) {
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Tanggal Pelaksanaan</label>
+                                <label class="form-label">Tanggal Pelaksanaan <span style="color: red;">*</span></label>
                                 <input type="date" name="tanggal_event" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Jam Pelaksanaan</label>
+                            <label class="form-label">Jam Pelaksanaan <span style="color: red;">*</span></label>
                             <input type="time" name="jam_event" class="form-control" required>
                         </div>
 
-                        <div class="mb-5">
-                            <label class="form-label">Deskripsi Tambahan</label>
-                            <textarea name="deskripsi" class="form-control" rows="4" style="border-color:var(--accent-gold);"></textarea>
-                        </div>
 
                         <button type="submit" name="ajukan_event" class="btn btn-gold">Ajukan Reservasi Event</button>
                     </form>

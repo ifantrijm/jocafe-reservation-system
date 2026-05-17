@@ -29,12 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     $email       = mysqli_real_escape_string($conn, $_POST['email']);
     $telepon     = mysqli_real_escape_string($conn, $_POST['telepon']);
     $id_room     = $_POST['id_room'];
-    $jenis       = $_POST['jenis']; 
     $tgl         = $_POST['tanggal_reservasi'];
     $jam_mulai   = $_POST['jam_mulai'];
-    $jam_selesai = $_POST['jam_selesai'];
-    $deskripsi   = mysqli_real_escape_string($conn, $_POST['deskripsi']);
-    $nama_event  = isset($_POST['nama_event']) ? mysqli_real_escape_string($conn, $_POST['nama_event']) : '-';
+    
+    // ALIH FUNGSI: Jenis reservasi dimasukkan ke kolom deskripsi
+    $deskripsi   = mysqli_real_escape_string($conn, $_POST['jenis']);
 
     // Logika Upload Bukti Bayar
     $bukti_nama = $_FILES['bukti_pembayaran']['name'];
@@ -54,8 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     }
 
     // --- TAHAP 2: INPUT KE RESERVASI_ROOM ---
-    $query_res = "INSERT INTO reservasi_room (id_pelanggan, id_room, tanggal_reservasi, jam_mulai, jam_selesai, bukti_pembayaran, nama_event, deskripsi) 
-                  VALUES ('$id_pelanggan', '$id_room', '$tgl', '$jam_mulai', '$jam_selesai', '$bukti_baru', '$nama_event', '$deskripsi')";
+    // Hapus kolom jam_selesai dan nama_event, simpan jenis ke deskripsi
+    $query_res = "INSERT INTO reservasi_room (id_pelanggan, id_room, tanggal_reservasi, jam_mulai, bukti_pembayaran, deskripsi) 
+                  VALUES ('$id_pelanggan', '$id_room', '$tgl', '$jam_mulai', '$bukti_baru', '$deskripsi')";
 
     if (mysqli_query($conn, $query_res)) {
         $id_baru = mysqli_insert_id($conn);
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
         .form-control, .form-select { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; }
         .btn-gold { background-color: var(--accent-gold); color: white; font-weight: 700; padding: 14px; border-radius: 8px; border:none; }
         .section-title { font-weight: 800; border-bottom: 2px solid var(--border-dark); padding-bottom: 10px; margin-bottom: 25px; color: var(--accent-gold); }
-        .form-card input {border-color:var(--accent-gold);}
+        .form-card input, .form-card select {border-color:var(--accent-gold);}
         .box {border: 1px solid; border-color:var(--accent-gold);}
     </style>
 </head>
@@ -142,21 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                                 required
                             >
                                 <option value="">-- Pilih Jenis Reservasi --</option>
-
                                 <option value="Dine In">Dine In / Makan Bersama</option>
-
                                 <option value="Birthday">Perayaan Ulang Tahun</option>
-
                                 <option value="Meeting">Meeting / Rapat</option>
-
                                 <option value="Family Gathering">Family Gathering</option>
-
                                 <option value="Private Event">Private Event</option>
-
                                 <option value="Anniversary">Anniversary</option>
-
                                 <option value="Komunitas">Gathering Komunitas</option>
-
                                 <option value="Lainnya">Lainnya</option>
                             </select>
                         </div>
@@ -232,15 +224,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-        document.getElementById('jenis_reservasi').addEventListener('change', function() {
-            var eventDiv = document.getElementById('input_nama_event');
-            if (this.value === 'ulang tahun' || this.value === 'Rapat') {
-                eventDiv.style.display = 'block';
-            } else {
-                eventDiv.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>
