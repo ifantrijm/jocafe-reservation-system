@@ -132,19 +132,6 @@ if (isset($_POST['kirim'])) {
         <button type="submit" name="kirim">Kirim Sekarang ✨</button>
     </form>
 
-    <div class="list-section">
-        <?php
-        // Menampilkan testimoni yang statusnya 'tampilkan' menggunakan variabel $conn
-        $res = mysqli_query($conn, "SELECT * FROM testimoni WHERE status = 'tampilkan' ORDER BY id_testimoni DESC LIMIT 5");
-        while($row = mysqli_fetch_assoc($res)) {
-            $bintang = str_repeat("⭐", $row['rating']);
-            echo "<div class='testi-card'>
-                    <strong>{$row['nama']}</strong> <small>$bintang</small> <br>
-                    <small>{$row['pesan']}</small>
-                  </div>";
-        }
-        ?>
-    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

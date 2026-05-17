@@ -84,6 +84,8 @@ header("Expires: 0");
             font-weight: 700;
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
+
 </head>
 <body>
 
@@ -98,7 +100,7 @@ header("Expires: 0");
             <div class="fw-bold text-white text-capitalize" style="font-size: 0.95rem;">
                 <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Admin'; ?>
             </div>
-            <small style="font-size: 0.75rem; color: #aab3be;">Administrator</small>
+            <small class="title-cursive" style="font-size: 0.75rem; color: #aab3be;">Administrator</small>
         </div>
     </div>
     <a href="admin.php?page=home" class="nav-link-custom"><i class="fas fa-home me-2"></i> Dashboard</a>

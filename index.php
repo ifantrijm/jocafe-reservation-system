@@ -109,6 +109,13 @@ function get_gambar($conn, $id_gallery, $default_url) {
         }
         .nav-link:hover { color: var(--jo-orange) !important; }
 
+        .dropdown-menu {
+             background-color: var(--bg-dark);
+        }
+        .nav-item {
+             background-color: var(--bg-dark);
+        }
+
         /* Buttons */
         .btn-jo {
             background-color: var(--jo-orange);
@@ -206,9 +213,85 @@ function get_gambar($conn, $id_gallery, $default_url) {
         }
         .testi-home-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(248, 155, 28, 0.1); }
 
+
         /* Footer */
-        .footer-custom { border-top: 2px solid #1f2937; padding: 40px 0 20px; margin-top: 50px; }
+        /* Custom CSS khusus untuk Footer Jo Cafe */
+    .footer-custom {
+        background-color: var(--bg-dark); /* Tema hitam premium */
+        color: #b5b5b5; 
+        padding: 70px 0 30px 0;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+    .footer-custom h5, .footer-custom h6 {
+        color: #ffffff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .footer-custom .text-warning-custom {
+        color: #ffb300 !important; /* Warna kuning/emas elegan */
+    }
+    
+    /* Efek hover untuk link */
+    .footer-custom .footer-links a {
+        color: #b5b5b5;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+    .footer-custom .footer-links a:hover {
+        color: #ffb300 !important;
+        transform: translateX(4px); /* Efek geser kecil saat di-hover */
+    }
+    
+    /* Tombol ikon media sosial */
+    .footer-custom .social-icons a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background-color: #222222;
+        color: #ffffff;
+        border-radius: 50%;
+        margin-right: 10px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .footer-custom .social-icons a:hover {
+        background-color: #ffb300;
+        color: #111111 !important;
+        transform: translateY(-4px);
+    }
+    
+    /* Daftar kontak detail */
+    .footer-custom .contact-list li {
+        margin-bottom: 14px;
+        display: flex;
+        align-items: flex-start;
+        font-size: 0.9rem;
+    }
+    .footer-custom .contact-list i {
+        color: #ffb300;
+        margin-right: 12px;
+        font-size: 1.1rem;
+        margin-top: 1px;
+    }
+    
+    /* Frame untuk Peta Lokasi */
+    .footer-custom .map-container {
+        border: 2px solid #222222;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        transition: border-color 0.3s ease;
+    }
+    .footer-custom .map-container:hover {
+        border-color: #ffb300;
+    }
+    .footer-custom .border-top-custom {
+        border-top: 1px solid #222222 !important;
+    }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 <body>
 
@@ -222,8 +305,15 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
                     <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="#menu">Menu</a></li>
-                    <li class="nav-item"><a class="nav-link" href="page_reservasi.php">Reservasi Room</a></li>
-                    <li class="nav-item"><a class="nav-link" href="page_reservasi.php">Reservasi Event</a></li>
+                    <li class="nav-item dropdown ">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Reservasi
+                    </a>
+                        <ul class="dropdown-menu">                            
+                            <li class="nav-item"><a class="nav-link" href="reservasi/detail.php">Reservasi Room</a></li>
+                            <li class="nav-item"><a class="nav-link" href="reservasi/event.php">Reservasi Event</a></li>
+                        </ul> 
+                    </li>                                                       
                 </ul>
             </div>
         </div>
@@ -262,15 +352,6 @@ function get_gambar($conn, $id_gallery, $default_url) {
     <section class="section-padding text-center">
         <div class="container">
             <h2 class="title-cursive">Reservasi Event</h2>
-            <div class="row g-3 mb-4 justify-content-center">
-                <div class="col-md-5">
-                    <img src="<?= get_gambar($conn, $img_event_banner1, 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=600&q=80') ?>" class="img-fluid rounded" style="height: 200px; object-fit: cover; width: 100%;">
-                </div>
-                <div class="col-md-5">
-                    <img src="<?= get_gambar($conn, $img_event_banner2, 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80') ?>" class="img-fluid rounded" style="height: 200px; object-fit: cover; width: 100%;">
-                </div>
-            </div>
-            <a href="page_reservasi.php" class="btn btn-jo mb-5">Reservasi</a>
             <div class="row justify-content-center gap-4">
                 <div class="col-md-3">
                     <div class="img-card"><img src="<?= get_gambar($conn, $img_event_card1, 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=400&q=80') ?>" alt="Prewedding"></div>
@@ -280,10 +361,6 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <div class="img-card"><img src="<?= get_gambar($conn, $img_event_card2, 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=400&q=80') ?>" alt="Yearbook"></div>
                     <div class="img-card-title">Yearbook</div>
                 </div>
-                <div class="col-md-3">
-                    <div class="img-card"><img src="<?= get_gambar($conn, $img_event_card3, 'https://images.unsplash.com/photo-1525683248386-4554f9a130f1?auto=format&fit=crop&w=400&q=80') ?>" alt="Graduation"></div>
-                    <div class="img-card-title">Graduation</div>
-                </div>
             </div>
         </div>
     </section>
@@ -291,15 +368,8 @@ function get_gambar($conn, $id_gallery, $default_url) {
     <section class="section-padding text-center">
         <div class="container">
             <h2 class="title-cursive">Reservasi Tempat</h2>
-            <div class="row g-3 mb-4 justify-content-center">
-                <div class="col-md-5">
-                    <img src="<?= get_gambar($conn, $img_tempat_banner1, 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80') ?>" class="img-fluid rounded" style="height: 200px; object-fit: cover; width: 100%;">
-                </div>
-                <div class="col-md-5">
-                    <img src="<?= get_gambar($conn, $img_tempat_banner2, 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80') ?>" class="img-fluid rounded" style="height: 200px; object-fit: cover; width: 100%;">
-                </div>
-            </div>
-            <a href="page_reservasi.php" class="btn btn-jo mb-5">Reservasi</a>
+
+            
             <div class="row justify-content-center gap-4">
                 <div class="col-md-3">
                     <div class="img-card"><img src="<?= get_gambar($conn, $img_tempat_card1, 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=80') ?>" alt="Ruang 1"></div>
@@ -309,11 +379,9 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <div class="img-card"><img src="<?= get_gambar($conn, $img_tempat_card2, 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80') ?>" alt="Ruang 2"></div>
                     <div class="img-card-title">RUANG 2</div>
                 </div>
-                <div class="col-md-3">
-                    <div class="img-card"><img src="<?= get_gambar($conn, $img_tempat_card3, 'https://images.unsplash.com/photo-1522771731478-44fb949b294e?auto=format&fit=crop&w=400&q=80') ?>" alt="Ruang 3"></div>
-                    <div class="img-card-title">RUANG 3</div>
-                </div>
+
             </div>
+            <!-- <a href="page_reservasi.php" class="btn btn-jo mb-5">Reservasi</a> -->
         </div>
     </section>
 
@@ -361,7 +429,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                 <?php 
                     }
                 } else {
-                    echo "<p class='text-muted'>Belum ada foto galeri terbaru.</p>";
+                    echo "<p class=''>Belum ada foto galeri terbaru.</p>";
                 }
                 ?>
             </div>
@@ -385,7 +453,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                                 <i class="far fa-calendar-alt me-2"></i><?= date('d M Y', strtotime($b['tanggal'])); ?>
                             </span>
                             <h4 class="fw-bold mb-3 text-white"><?= htmlspecialchars($b['judul']); ?></h4>
-                            <p class="text-muted small mb-4"><?= substr(htmlspecialchars($b['isi']), 0, 100); ?>...</p>
+                            <p class=" small mb-4"><?= substr(htmlspecialchars($b['isi']), 0, 100); ?>...</p>
                             <a href="blog_detail.php?id=<?= $b['id_blog']; ?>" class="text-warning text-decoration-none fw-bold small">Baca Selengkapnya →</a>
                         </div>
                     </div>
@@ -393,7 +461,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                 <?php 
                     }
                 } else {
-                    echo "<p class='text-muted text-center w-100'>Belum ada artikel terbit.</p>";
+                    echo "<p class=' text-center w-100'>Belum ada artikel terbit.</p>";
                 }
                 ?>
             </div>
@@ -428,7 +496,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                                 <img src="assets/img/menu/<?= $m['gambar']; ?>" class="card-jo-img" alt="<?= htmlspecialchars($m['nama_item']); ?>">
                                 <div class="p-3">
                                     <h5 class="fw-bold mb-1"><?= htmlspecialchars($m['nama_item']); ?></h5>
-                                    <p class="small text-muted mb-3"><?= htmlspecialchars($m['deskripsi']); ?></p>
+                                    <p class="small  mb-3"><?= htmlspecialchars($m['deskripsi']); ?></p>
                                     <div class="text-warning fw-bold">Rp <?= number_format($m['harga'], 0, ',', '.'); ?></div>
                                 </div>
                             </div>
@@ -441,7 +509,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <div class="row g-4">
                         <?php 
                         $q_makan = mysqli_query($conn, "SELECT * FROM menu WHERE kategori='makanan' ORDER BY id_menu DESC");
-                        if(mysqli_num_rows($q_makan) == 0) echo "<p class='text-muted text-center w-100'>Menu makanan belum tersedia.</p>";
+                        if(mysqli_num_rows($q_makan) == 0) echo "<p class=' text-center w-100'>Menu makanan belum tersedia.</p>";
                         while($m = mysqli_fetch_assoc($q_makan)):
                         ?>
                         <div class="col-md-3">
@@ -449,7 +517,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                                 <img src="assets/img/menu/<?= $m['gambar']; ?>" class="card-jo-img" alt="<?= htmlspecialchars($m['nama_item']); ?>">
                                 <div class="p-3">
                                     <h5 class="fw-bold mb-1"><?= htmlspecialchars($m['nama_item']); ?></h5>
-                                    <p class="small text-muted mb-3"><?= htmlspecialchars($m['deskripsi']); ?></p>
+                                    <p class="small  mb-3"><?= htmlspecialchars($m['deskripsi']); ?></p>
                                     <div class="text-warning fw-bold">Rp <?= number_format($m['harga'], 0, ',', '.'); ?></div>
                                 </div>
                             </div>
@@ -462,7 +530,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     <div class="row g-4">
                         <?php 
                         $q_minum = mysqli_query($conn, "SELECT * FROM menu WHERE kategori='minuman' ORDER BY id_menu DESC");
-                        if(mysqli_num_rows($q_minum) == 0) echo "<p class='text-muted text-center w-100'>Menu minuman belum tersedia.</p>";
+                        if(mysqli_num_rows($q_minum) == 0) echo "<p class=' text-center w-100'>Menu minuman belum tersedia.</p>";
                         while($m = mysqli_fetch_assoc($q_minum)):
                         ?>
                         <div class="col-md-3">
@@ -514,35 +582,88 @@ function get_gambar($conn, $id_gallery, $default_url) {
         </div>
     </section>
 
-    <footer class="footer-custom">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3">
-                    <h6 class="text-warning">Link Cepat</h6>
-                    <ul class="list-unstyled small" style="line-height: 2;">
-                        <li><a href="#" class="text-decoration-none text-light">Home</a></li>
-                        <li><a href="#welcome" class="text-decoration-none text-light">Tentang</a></li>
-                        <li><a href="#" class="text-decoration-none text-light">Kontak</a></li>
-                        <li><a href="auth/login.php" class="text-decoration-none text-light">Dashboard</a></li>
-                    </ul>
+<footer class="footer-custom">
+    <div class="container">
+        <div class="row g-4">
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-cup-hot text-warning-custom fs-3 me-2"></i>
+                    <h5 class="mb-0 fw-bold tracking-wide text-white">Jo Cafe</h5>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="text-warning">Reservation</h6>
-                    <ul class="list-unstyled small" style="line-height: 2;">
-                        <li><a href="page_reservasi.php" class="text-decoration-none text-light">Room 1</a></li>
-                        <li><a href="page_reservasi.php" class="text-decoration-none text-light">Room 2</a></li>
-                        <li><a href="page_reservasi.php" class="text-decoration-none text-light">Room 3</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-6 text-end">
-                    <img src="https://via.placeholder.com/400x150/ffffff/000000/?text=Peta+Lokasi+Jo+Cafe" class="img-fluid rounded" alt="Maps">
+                <p class="small  mb-4" style="line-height: 1.7; text-align: justify;">
+                    Tempat bersantai terbaik untuk menikmati kopi berkualitas tinggi, hidangan lezat, dan suasana yang hangat. Menemani setiap momen berhargamu sejak 2026.
+                </p>
+                <div class="social-icons">
+                    <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" title="Twitter / X"><i class="bi bi-twitter-x"></i></a>
                 </div>
             </div>
-            <div class="text-center mt-4 pt-3 border-top border-secondary small">
-                &copy; 2026 Jo Cafe.
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-warning-custom mb-3">Akses & Reservasi</h6>
+                <div class="row g-2 footer-links">
+                    <div class="col-6">
+                        <span class="text-white d-block small fw-bold mb-2">Link Cepat</span>
+                        <ul class="list-unstyled small" style="line-height: 2.2;">
+                            <li><a href="#" class="text-decoration-none">Home</a></li>
+                            <li><a href="#welcome" class="text-decoration-none">Tentang</a></li>
+                            <li><a href="#" class="text-decoration-none">Kontak</a></li>
+                            <li><a href="auth/login.php" class="text-decoration-none">Dashboard</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <span class="text-white d-block small fw-bold mb-2">Reservasi Room</span>
+                        <ul class="list-unstyled small" style="line-height: 2.2;">
+                            <li><a href="page_reservasi.php?room=1" class="text-decoration-none">Room 1</a></li>
+                            <li><a href="page_reservasi.php?room=2" class="text-decoration-none">Room 2</a></li>
+                            <li><a href="page_reservasi.php?room=3" class="text-decoration-none">Room 3</a></li>
+                            <li><a href="page_reservasi.php?room=4" class="text-decoration-none">Room 4</a></li>
+                            <li><a href="page_reservasi.php?room=5" class="text-decoration-none">Room 5</a></li>
+                            <li><a href="page_reservasi.php?room=6" class="text-decoration-none">Room 6</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-warning-custom mb-3">Hubungi Kami</h6>
+                <ul class="list-unstyled contact-list ">
+                    <li>
+                        <i class="bi bi-geo-alt"></i>
+                        <span>Jl. Merdeka No. 123, Kampus Tegalboto, Jember, Jawa Timur</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-telephone"></i>
+                        <span>+62 812-3456-7890</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-envelope"></i>
+                        <span>info@jocafe.com</span>
+                    </li>
+                    <li>
+                        <i class="bi bi-clock"></i>
+                        <span>Senin - Minggu<br><strong class="text-white">08:00 - 22:00 WIB</strong></span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-warning-custom mb-3">Lokasi Kami</h6>
+                <div class="map-container">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d987.3393057709314!2d113.70578904560988!3d-8.166718775186798!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695162a241cc7%3A0x41f5d473ec70c910!2sJO%20CAFE%20AUTHENTIC%20COFFEE%20BAR%20%26%20KITCHEN!5e0!3m2!1sid!2sid!4v1778998704830!5m2!1sid!2sid" width="600" height="220" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+            
         </div>
-    </footer>
+
+        <div class="text-center mt-5 pt-3 border-top-custom small ">
+            © 2026 <span class="text-white fw-semibold">Jo Cafe</span>. Seluruh Hak Cipta Dilindungi.
+        </div>
+    </div>
+</footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -553,7 +674,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
             document.getElementById("joNavbar").style.top = "0";
         } else {
             document.getElementById("joNavbar").style.top = "-100px"; 
-        }
+        }   
         prevScrollpos = currentScrollPos;
     }
     </script>
