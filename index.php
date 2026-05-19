@@ -311,7 +311,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                     </a>
                         <ul class="dropdown-menu">                            
                             <li class="nav-item"><a class="nav-link" href="reservasi/detail.php">Reservasi Room</a></li>
-                            <li class="nav-item"><a class="nav-link" href="reservasi/event.php">Reservasi Event</a></li>
+                            <li class="nav-item"><a class="nav-link" href="reservasi/detail_event.php">Reservasi Event</a></li>
                         </ul> 
                     </li>                                                       
                 </ul>
