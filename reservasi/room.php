@@ -115,24 +115,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 
                         <h5 class="section-title">1. Data Pemesan</h5>
                         <div class="mb-3">
-                            <label class="form-label">Nama Lengkap</label>
+                            <label class="form-label">Nama Lengkap <span style="color: red;">*</span></label>
                             <input type="text" name="nama" class="form-control" required>
                         </div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Email Aktif</label>
-                                <input type="email" name="email" class="form-control" required>
+                                <label class="form-label">Email Aktif <span style="color: red;">*</span></label>
+                                <input type="email" name="email" class="form-control" >
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">No. WhatsApp</label>
+                                <label class="form-label">No. WhatsApp <span style="color: red;">*</span></label>
                                 <input type="number" name="telepon" class="form-control" required>
                             </div>
                         </div>
 
-                        <h5 class="section-title">2. Detail Acara & Waktu</h5>
+                        <h5 class="section-title">2. Detail Acara & Waktu </h5>
                         <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Jenis Reservasi</label>
+                            <label class="form-label">Jenis Reservasi <span style="color: red;">*</span></label>
 
                             <select 
                                 name="jenis" 
@@ -153,20 +153,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                             </select>
                         </div>
                             <div class="col-md-6">
-                                <label class="form-label">Tanggal Kedatangan</label>
+                                <label class="form-label">Tanggal Kedatangan <span style="color: red;">*</span></label>
                                 <input type="date" name="tanggal_reservasi" class="form-control" required>
                             </div>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label">Jam Mulai</label>
+                                <label class="form-label">Jam Mulai <span style="color: red;">*</span></label>
                                 <input type="time" name="jam_mulai" class="form-control" required>
                             </div>
                         </div>
 
 
-                        <h5 class="section-title">3. Konfirmasi Pembayaran</h5>
+                        <h5 class="section-title">3. Konfirmasi Pembayaran <span style="color: red;">*</span></h5>
                         <div class="mb-4 box p-3">
                             <div class="row g-2">
                                 <div class="col-6">
