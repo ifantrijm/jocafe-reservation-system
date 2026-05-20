@@ -1,40 +1,581 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  </head>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Travelogy Tour Organizer</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: #0f172a;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    .navbar {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      color: #facc15 !important;
+      font-size: 1.4rem;
+    }
+
+    .nav-link {
+      color: white !important;
+      margin-left: 10px;
+      transition: 0.3s;
+    }
+
+    .nav-link:hover {
+      color: #facc15 !important;
+    }
+
+    .hero {
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)),
+        url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: bold;
+    }
+
+    .hero span {
+      color: #facc15;
+    }
+
+    .hero p {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #d1d5db;
+    }
+
+    .btn-gold {
+      background: #facc15;
+      color: black;
+      font-weight: bold;
+      border-radius: 50px;
+      padding: 12px 28px;
+      transition: 0.3s;
+    }
+
+    .btn-gold:hover {
+      transform: translateY(-3px);
+      background: white;
+    }
+
+    section {
+      padding: 90px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-title h2 {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    .section-title span {
+      color: #facc15;
+    }
+
+    .package-card {
+      background: #1e293b;
+      border-radius: 20px;
+      overflow: hidden;
+      transition: 0.4s;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      height: 100%;
+    }
+
+    .package-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .package-card img {
+      width: 100%;
+      height: 230px;
+      object-fit: cover;
+    }
+
+    .package-content {
+      padding: 20px;
+    }
+
+    .price {
+      color: #facc15;
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    .feature-box {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      transition: 0.3s;
+      height: 100%;
+    }
+
+    .feature-box:hover {
+      transform: translateY(-5px);
+      background: #273449;
+    }
+
+    .feature-box i {
+      font-size: 3rem;
+      color: #facc15;
+      margin-bottom: 15px;
+    }
+
+    .gallery img {
+      border-radius: 20px;
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      transition: 0.4s;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.03);
+    }
+
+    .testimonial {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 20px;
+      height: 100%;
+    }
+
+    .testimonial i {
+      color: #facc15;
+    }
+
+    .contact-box {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 40px;
+    }
+
+    .form-control,
+    .form-select {
+      background: #0f172a;
+      border: 1px solid #334155;
+      color: white;
+      padding: 14px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      background: #0f172a;
+      color: white;
+      border-color: #facc15;
+      box-shadow: none;
+    }
+
+    iframe {
+      border-radius: 20px;
+    }
+
+    footer {
+      background: #020617;
+      padding: 30px 0;
+      text-align: center;
+      color: #94a3b8;
+    }
+
+    .floating-wa {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: #25d366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.8rem;
+      z-index: 999;
+      text-decoration: none;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    @media(max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+    }
   </style>
-  <body class="bg">
+</head>
+<body>
 
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
     <div class="container">
-        <div class="row">
-            
-        </div>
+      <a class="navbar-brand" href="#">TRAVELOGY</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#paket">Paket</a></li>
+          <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
+          <li class="nav-item"><a class="nav-link" href="#kontak">Kontak</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
 
-    <table border="2" class="table">
-      <thead>
-        <tr>
-          <th>Nama</th>
-          <th>Pesan</th>
-          <th>Rating</th>
-        </tr>
-      </thead>
-      <tbody>
-        <t>
-          <td>Akbar</td>
-          <td>Mantap</td>
-          <td>100/10</td>
-        </t>
-      </tbody>
-    </table>
+  <section class="hero" id="home">
+    <div class="container">
+      <h1>Explore Beautiful <span>Indonesia</span></h1>
+      <p>
+        Nikmati perjalanan wisata terbaik bersama Travelogy Tour Organizer.
+        Aman, nyaman, dan pengalaman tak terlupakan.
+      </p>
 
-    
-    <h1>Hello, world!</h1>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  </body>
+      <div class="mt-4">
+        <a href="#paket" class="btn btn-gold me-2">Lihat Paket</a>
+        <a href="#kontak" class="btn btn-outline-light rounded-pill px-4 py-3">Booking Sekarang</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="paket">
+    <div class="container">
+      <div class="section-title">
+        <h2>Paket <span>Wisata</span></h2>
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-md-4">
+          <div class="package-card">
+            <img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?q=80&w=1200&auto=format&fit=crop" alt="Bromo">
+
+            <div class="package-content">
+              <h4>Bromo Sunrise</h4>
+              <p>Perjalanan seru menikmati sunrise Gunung Bromo.</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="price">Rp 350K</span>
+
+                <button class="btn btn-gold" onclick="pilihPaket('Bromo Sunrise')">
+                  Pesan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="package-card">
+            <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1200&auto=format&fit=crop" alt="Bali">
+
+            <div class="package-content">
+              <h4>Bali Holiday</h4>
+              <p>Liburan premium menikmati pantai dan budaya Bali.</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="price">Rp 1.2JT</span>
+
+                <button class="btn btn-gold" onclick="pilihPaket('Bali Holiday')">
+                  Pesan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="package-card">
+            <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1200&auto=format&fit=crop" alt="Ijen">
+
+            <div class="package-content">
+              <h4>Kawah Ijen</h4>
+              <p>Melihat blue fire dan keindahan kawah Ijen Banyuwangi.</p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="price">Rp 500K</span>
+
+                <button class="btn btn-gold" onclick="pilihPaket('Kawah Ijen')">
+                  Pesan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Kenapa <span>Kami?</span></h2>
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-md-3">
+          <div class="feature-box">
+            <i class="fa-solid fa-bus"></i>
+            <h5>Transport Nyaman</h5>
+            <p>Kendaraan bersih dan nyaman selama perjalanan.</p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="feature-box">
+            <i class="fa-solid fa-camera"></i>
+            <h5>Dokumentasi</h5>
+            <p>Momen perjalanan akan diabadikan dengan baik.</p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="feature-box">
+            <i class="fa-solid fa-shield"></i>
+            <h5>Aman & Trusted</h5>
+            <p>Dipandu tour guide berpengalaman dan profesional.</p>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="feature-box">
+            <i class="fa-solid fa-wallet"></i>
+            <h5>Harga Terjangkau</h5>
+            <p>Paket wisata murah dengan fasilitas premium.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="galeri">
+    <div class="container">
+      <div class="section-title">
+        <h2>Galeri <span>Perjalanan</span></h2>
+      </div>
+
+      <div class="row g-4 gallery">
+        <div class="col-md-4">
+          <img src="https://images.unsplash.com/photo-1468413253725-0d5181091126?q=80&w=1200&auto=format&fit=crop">
+        </div>
+
+        <div class="col-md-4">
+          <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop">
+        </div>
+
+        <div class="col-md-4">
+          <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1200&auto=format&fit=crop">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Testimoni <span>Customer</span></h2>
+      </div>
+
+      <div class="row g-4">
+
+        <div class="col-md-4">
+          <div class="testimonial">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+
+            <p class="mt-3">
+              Pelayanannya sangat ramah dan perjalanan sangat nyaman.
+            </p>
+
+            <h6>- Andi Saputra</h6>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testimonial">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+
+            <p class="mt-3">
+              Recomended banget buat liburan keluarga dan gathering.
+            </p>
+
+            <h6>- Sinta Maharani</h6>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="testimonial">
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+
+            <p class="mt-3">
+              Harga murah tapi fasilitas premium dan memuaskan.
+            </p>
+
+            <h6>- Rizky Pratama</h6>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="kontak">
+    <div class="container">
+      <div class="section-title">
+        <h2>Booking <span>Sekarang</span></h2>
+      </div>
+
+      <div class="row g-5 align-items-center">
+
+        <div class="col-lg-6">
+          <div class="contact-box">
+
+            <div class="mb-3">
+              <label>Nama Lengkap</label>
+              <input type="text" class="form-control" id="nama" placeholder="Masukkan nama">
+            </div>
+
+            <div class="mb-3">
+              <label>Pilih Paket</label>
+              <select class="form-select" id="paketDipilih">
+                <option>Bromo Sunrise</option>
+                <option>Bali Holiday</option>
+                <option>Kawah Ijen</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label>Jumlah Peserta</label>
+              <input type="number" class="form-control" id="jumlah" placeholder="Jumlah peserta">
+            </div>
+
+            <div class="mb-3">
+              <label>Tanggal Keberangkatan</label>
+              <input type="date" class="form-control" id="tanggal">
+            </div>
+
+            <div class="mb-3">
+              <label>Catatan Tambahan</label>
+              <textarea class="form-control" rows="4" id="catatan" placeholder="Tambahkan catatan"></textarea>
+            </div>
+
+            <button class="btn btn-gold w-100" onclick="kirimWhatsApp()">
+              Kirim Booking ke WhatsApp
+            </button>
+
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.346633267476!2d113.70878577500933!3d-8.177570791854194!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd69434cf245d8d%3A0x4f25ecda39db7a33!2sTravelogy%20Tour%20Organizer!5e0!3m2!1sid!2sid!4v1716111111111!5m2!1sid!2sid"
+            width="100%"
+            height="500"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy">
+          </iframe>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <h5>Travelogy Tour Organizer</h5>
+      <p>
+        Jl. Mastrip No.71, Sumbersari, Jember
+      </p>
+      <p>
+        © 2026 Travelogy Tour Organizer
+      </p>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/6281333992989" class="floating-wa" target="_blank">
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <script>
+
+    function pilihPaket(namaPaket) {
+      document.getElementById('paketDipilih').value = namaPaket;
+      document.getElementById('kontak').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function kirimWhatsApp() {
+
+      let nama = document.getElementById('nama').value;
+      let paket = document.getElementById('paketDipilih').value;
+      let jumlah = document.getElementById('jumlah').value;
+      let tanggal = document.getElementById('tanggal').value;
+      let catatan = document.getElementById('catatan').value;
+
+      let pesan = `Halo Admin Travelogy 👋%0A%0ASaya ingin memesan paket wisata.%0A%0A` +
+                  `Nama : ${nama}%0A` +
+                  `Paket : ${paket}%0A` +
+                  `Jumlah Peserta : ${jumlah} Orang%0A` +
+                  `Tanggal : ${tanggal}%0A` +
+                  `Catatan : ${catatan}`;
+
+      let nomorWA = '6281333992989';
+
+      window.open(`https://wa.me/${nomorWA}?text=${pesan}`, '_blank');
+    }
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
 </html>

@@ -51,8 +51,7 @@ if (isset($_POST['ajukan_event'])) {
     <style>
         :root { --bg-main: #13171c; --bg-card: #1c2128; --text-main: #ffffff; --text-muted: #a0aab5; --accent-gold: #f89d13; --accent-gold-hover: #e08c0f; --border-dark: rgba(255, 255, 255, 0.1); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); padding-top: 80px; padding-bottom: 50px; }
-        .navbar-custom { background-color: rgba(19, 23, 28, 0.95); border-bottom: 1px solid var(--border-dark); }
-        .navbar-brand { font-weight: 800; color: var(--accent-gold) !important; }
+        
         .form-card { background-color: var(--bg-card); border: 1px solid var(--border-dark); border-radius: 16px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
         .form-label { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
         .form-control, .form-select { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: white; border-radius: 8px; padding: 12px; }
@@ -64,12 +63,7 @@ if (isset($_POST['ajukan_event'])) {
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-        <div class="container">
-            <a class="navbar-brand fs-4" href="#">JO EVENT.</a>
-            <a href="../index.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
-        </div>
-    </nav>
+<?php include"../include/navbar.php" ?>
 
     <div class="container">
         <div class="row justify-content-center">
