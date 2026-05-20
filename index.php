@@ -290,6 +290,82 @@ function get_gambar($conn, $id_gallery, $default_url) {
     .footer-custom .border-top-custom {
         border-top: 1px solid #222222 !important;
     }
+
+    /* --- DESAIN BOX BEST SELLER BARU --- */
+.bestseller-box {
+    background-color: #111826;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    text-align: center;
+}
+
+.bestseller-box:hover {
+    transform: translateY(-8px);
+    border-color: #f89b1c;
+    box-shadow: 0 10px 25px rgba(248, 155, 28, 0.15);
+}
+
+.bestseller-img-container {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+}
+
+.bestseller-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.bestseller-box:hover .bestseller-img-container img {
+    transform: scale(1.1);
+}
+
+.bestseller-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #f89b1c;
+    color: #0a0e17;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 20px;
+    z-index: 2;
+    letter-spacing: 1px;
+}
+
+.bestseller-content {
+    padding: 20px;
+}
+
+.bs-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #ffffff;
+    margin-bottom: 8px;
+    text-transform: capitalize;
+}
+
+.bs-desc {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.bs-price {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: #f89b1c;
+    font-size: 1.15rem;
+}
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
@@ -349,67 +425,78 @@ function get_gambar($conn, $id_gallery, $default_url) {
         </div>
     </section>
 
-    <section class="section-padding text-center">
-        <div class="container">
-            <h2 class="title-cursive">Reservasi Event</h2>
-            <div class="row justify-content-center gap-4">
-                <div class="col-md-3">
-                    <div class="img-card"><img src="<?= get_gambar($conn, $img_event_card1, 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=400&q=80') ?>" alt="Prewedding"></div>
-                    <div class="img-card-title">Prewedding</div>
+<section class="section-padding text-center">
+    <div class="container">
+        <h2 class="title-cursive">Reservasi Event</h2>
+        <div class="row justify-content-center gap-4">
+            <?php 
+            $q_event = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'event' ORDER BY id_gallery DESC LIMIT 2");
+            while($ev = mysqli_fetch_assoc($q_event)): 
+            ?>
+            <div class="col-md-3">
+                <div class="img-card">
+                    <img src="assets/img/gallery/<?= $ev['gambar'] ?>" alt="<?= htmlspecialchars($ev['keterangan']) ?>">
                 </div>
-                <div class="col-md-3">
-                    <div class="img-card"><img src="<?= get_gambar($conn, $img_event_card2, 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=400&q=80') ?>" alt="Yearbook"></div>
-                    <div class="img-card-title">Yearbook</div>
-                </div>
+                <div class="img-card-title"><?= htmlspecialchars($ev['keterangan']) ?></div>
             </div>
+            <?php endwhile; ?>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="section-padding text-center">
-        <div class="container">
-            <h2 class="title-cursive">Reservasi Tempat</h2>
-
-            
-            <div class="row justify-content-center gap-4">
-                <div class="col-md-3">
-                    <div class="img-card"><img src="<?= get_gambar($conn, $img_tempat_card1, 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=80') ?>" alt="Ruang 1"></div>
-                    <div class="img-card-title">RUANG 1</div>
+<section class="section-padding text-center">
+    <div class="container">
+        <h2 class="title-cursive">Reservasi Tempat</h2>
+        <div class="row justify-content-center gap-4">
+            <?php 
+            $q_room = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'room' ORDER BY id_gallery DESC LIMIT 2");
+            while($rm = mysqli_fetch_assoc($q_room)): 
+            ?>
+            <div class="col-md-3">
+                <div class="img-card">
+                    <img src="assets/img/gallery/<?= $rm['gambar'] ?>" alt="<?= htmlspecialchars($rm['keterangan']) ?>">
                 </div>
-                <div class="col-md-3">
-                    <div class="img-card"><img src="<?= get_gambar($conn, $img_tempat_card2, 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80') ?>" alt="Ruang 2"></div>
-                    <div class="img-card-title">RUANG 2</div>
-                </div>
-
+                <div class="img-card-title"><?= htmlspecialchars($rm['keterangan']) ?></div>
             </div>
-            <!-- <a href="page_reservasi.php" class="btn btn-jo mb-5">Reservasi</a> -->
+            <?php endwhile; ?>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="section-padding text-center">
-        <div class="container">
-            <h2 class="title-cursive">Best Seller</h2>
-            <div class="row justify-content-center mt-5 gap-4">
-                <div class="col-md-3">
-                    <div class="food-item">
-                        <div class="food-title">Pasta Penne</div>
-                        <img src="<?= get_gambar($conn, $img_bestseller_1, 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=300&q=80') ?>" alt="Pasta Penne">
+<section class="section-padding text-center">
+    <div class="container">
+        <h2 class="title-cursive text-white mb-2">Our Best Seller</h2>
+        <p class="mb-5" style="color: #f89b1c; letter-spacing: 1px;">MENU FAVORIT PILIHAN PELANGGAN</p>
+        
+        <div class="row justify-content-center gap-4">
+            <?php 
+            $q_best = mysqli_query($conn, "SELECT * FROM menu WHERE is_bestseller = 1 LIMIT 3");
+            if(mysqli_num_rows($q_best) > 0):
+                while($bs = mysqli_fetch_assoc($q_best)): 
+            ?>
+            <div class="col-md-3">
+                <div class="bestseller-box">
+                    <div class="bestseller-img-container">
+                        <div class="bestseller-badge">
+                            <i class="fa-solid fa-fire me-1"></i> TOP
+                        </div>
+                        <img src="assets/img/menu/<?= $bs['gambar'] ?>" alt="<?= htmlspecialchars($bs['nama_item']) ?>">
+                    </div>
+                    <div class="bestseller-content">
+                        <h4 class="bs-title"><?= htmlspecialchars($bs['nama_item']) ?></h4>
+                        <p class="bs-desc"><?= substr(htmlspecialchars($bs['deskripsi']), 0, 40) ?></p>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="food-item">
-                        <div class="food-title" style="font-size: 2.5rem; top: -30px;">Beef Bulgogi</div>
-                        <img src="<?= get_gambar($conn, $img_bestseller_2, 'https://images.unsplash.com/photo-1544025162-831770e28151?auto=format&fit=crop&w=300&q=80') ?>" alt="Beef Bulgogi" style="width: 230px; height: 230px;">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="food-item">
-                        <div class="food-title">Tteokbokki Cheese Sauce</div>
-                        <img src="<?= get_gambar($conn, $img_bestseller_3, 'https://images.unsplash.com/photo-1582260655866-e0fbc4fb3158?auto=format&fit=crop&w=300&q=80') ?>" alt="Tteokbokki">
-                    </div>
-                </div>
             </div>
+            <?php 
+                endwhile;
+            else:
+                echo "<p class='text-white w-100'>Belum ada menu best seller yang dipilih.</p>";
+            endif;
+            ?>
         </div>
-    </section>
+    </div>
+</section>
 
 
     <section id="galeri" class="section-padding text-center">

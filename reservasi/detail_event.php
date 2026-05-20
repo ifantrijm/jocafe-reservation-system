@@ -3,7 +3,7 @@
 include "../config/koneksi.php"; 
 
 // Mengambil data dari tabel gallery
-$query = mysqli_query($conn, "SELECT * FROM gallery");
+$query = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'event' ORDER BY id_gallery DESC");
 ?>
 
 <!DOCTYPE html>

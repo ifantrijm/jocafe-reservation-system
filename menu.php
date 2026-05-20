@@ -44,7 +44,7 @@ if (isset($_POST['simpan'])) {
     }
 
     if ($id_target) {
-        // Query Update - Menyimpan log id_admin yang mengedit menu
+        // Query Update
         $query = "UPDATE menu SET 
                     id_admin = $id_admin,
                     nama_item = '$nama', 
@@ -54,14 +54,13 @@ if (isset($_POST['simpan'])) {
                     gambar = '$nama_file' 
                   WHERE id_menu = '$id_target'";
     } else {
-        // Query Insert - Menyimpan log id_admin yang mendaftarkan menu baru
+        // Query Insert
         $query = "INSERT INTO menu (id_admin, nama_item, kategori, deskripsi, harga, gambar) 
                   VALUES ($id_admin, '$nama', '$kategori', '$deskripsi', '$harga', '$nama_file')";
     }
     
     mysqli_query($conn, $query);
     
-    // FIX HEADERS: Gunakan JavaScript Redirect agar template dynamic admin tidak error
     echo "<script>window.location.href='admin.php?page=menu';</script>";
     exit;
 }
@@ -77,7 +76,27 @@ if (isset($_GET['hapus'])) {
     }
     mysqli_query($conn, "DELETE FROM menu WHERE id_menu = '$id'");
     
-    // FIX HEADERS: Gunakan JavaScript Redirect
+    echo "<script>window.location.href='admin.php?page=menu';</script>";
+    exit;
+}
+
+// 4. LOGIKA BEST SELLER (MENGGUNAKAN KOLOM is_bestseller)
+if (isset($_GET['toggle_bs'])) {
+    $id = $_GET['toggle_bs'];
+    $cek = mysqli_fetch_assoc(mysqli_query($conn, "SELECT is_bestseller FROM menu WHERE id_menu = '$id'"));
+    
+    if ($cek['is_bestseller'] == 1) {
+        // Batalkan best seller
+        mysqli_query($conn, "UPDATE menu SET is_bestseller = 0 WHERE id_menu = '$id'");
+    } else {
+        // Cek jumlah best seller maksimal 3
+        $count = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM menu WHERE is_bestseller = 1"));
+        if ($count['total'] < 3) {
+            mysqli_query($conn, "UPDATE menu SET is_bestseller = 1 WHERE id_menu = '$id'");
+        } else {
+            echo "<script>alert('Maksimal hanya 3 menu Best Seller yang diizinkan!');</script>";
+        }
+    }
     echo "<script>window.location.href='admin.php?page=menu';</script>";
     exit;
 }
@@ -171,6 +190,9 @@ if (isset($_GET['hapus'])) {
                         <td><span style="text-transform: capitalize;"><?php echo $m['kategori']; ?></span></td>
                         <td>Rp <?php echo number_format($m['harga'], 0, ',', '.'); ?></td>
                         <td>
+                            <a href="admin.php?page=menu&toggle_bs=<?php echo $m['id_menu']; ?>" style="background: <?php echo isset($m['is_bestseller']) && $m['is_bestseller'] ? '#dc3545' : '#198754'; ?>; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; margin-right: 5px;">
+                                <?php echo isset($m['is_bestseller']) && $m['is_bestseller'] ? 'Batal Best Seller' : 'Jadikan Best Seller'; ?>
+                            </a>
                             <a href="admin.php?page=menu&edit=<?php echo $m['id_menu']; ?>" class="btn-edit">Edit</a>
                             <a href="admin.php?page=menu&hapus=<?php echo $m['id_menu']; ?>" class="btn-del" onclick="return confirm('Hapus menu ini?')">Hapus</a>
                         </td>
