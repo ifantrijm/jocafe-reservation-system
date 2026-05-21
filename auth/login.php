@@ -9,37 +9,42 @@ if (isset($_SESSION['role_staff'])) {
 }
 
 if (isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']); 
-    $password = $_POST['password'];
-
-    $query = mysqli_query($conn, "SELECT * FROM staff WHERE username='$username'");
-    
-    if (mysqli_num_rows($query) === 1) {
-        $row = mysqli_fetch_assoc($query);
-        
-        // --- LOGIKA BARU: CEK STATUS AKUN DULU SEBELUM CEK PASSWORD ---
-        if ($row['status_akun'] === 'Pending') {
-            $error = "Akses Ditolak! Akun Anda masih menunggu persetujuan Manager.";
-        } else {
-            // Kalau Aktif, baru cek passwordnya
-            if (password_verify($password, $row['password'])) {
-                $_SESSION['id_staff'] = $row['id_staff'];
-                $_SESSION['username'] = $row['username'];
-                $_SESSION['role_staff'] = $row['role_staff'];
-
-                if ($row['role_staff'] == 'admin') {
-                    header("Location: ../dashboard/admin.php");
-                    exit;
-                } else if ($row['role_staff'] == 'manager') {
-                    header("Location: ../dashboard/manager.php");
-                    exit;
-                }
-            } else {
-                $error = "Password yang Anda masukkan salah!";
-            }
-        }
+    // Tambahan keamanan PHP: Pastikan tidak memproses jika kosong
+    if (empty($_POST['username']) || empty($_POST['password'])) {
+        $error = "Kolom ini wajib diisi.";
     } else {
-        $error = "Username tidak ditemukan di sistem!";
+        $username = mysqli_real_escape_string($conn, $_POST['username']); 
+        $password = $_POST['password'];
+
+        $query = mysqli_query($conn, "SELECT * FROM staff WHERE username='$username'");
+        
+        if (mysqli_num_rows($query) === 1) {
+            $row = mysqli_fetch_assoc($query);
+            
+            // --- LOGIKA BARU: CEK STATUS AKUN DULU SEBELUM CEK PASSWORD ---
+            if ($row['status_akun'] === 'Pending') {
+                $error = "Akses Ditolak! Akun Anda masih menunggu persetujuan Manager.";
+            } else {
+                // Kalau Aktif, baru cek passwordnya
+                if (password_verify($password, $row['password'])) {
+                    $_SESSION['id_staff'] = $row['id_staff'];
+                    $_SESSION['username'] = $row['username'];
+                    $_SESSION['role_staff'] = $row['role_staff'];
+
+                    if ($row['role_staff'] == 'admin') {
+                        header("Location: ../dashboard/admin.php");
+                        exit;
+                    } else if ($row['role_staff'] == 'manager') {
+                        header("Location: ../dashboard/manager.php");
+                        exit;
+                    }
+                } else {
+                    $error = "Password yang Anda masukkan salah!";
+                }
+            }
+        } else {
+            $error = "Username tidak ditemukan di sistem!";
+        }
     }
 }
 ?>
@@ -74,11 +79,15 @@ if (isset($_POST['login'])) {
         <form method="POST">
             <div class="mb-3">
                 <label class="form-label text-white small fw-bold">USERNAME</label>
-                <input type="text" name="username" class="form-control" required>
+                <input type="text" name="username" class="form-control" required 
+                       oninvalid="this.setCustomValidity('Kolom ini wajib diisi.')" 
+                       oninput="this.setCustomValidity('')">
             </div>
             <div class="mb-4">
                 <label class="form-label text-white small fw-bold">PASSWORD</label>
-                <input type="password" name="password" class="form-control" required>
+                <input type="password" name="password" class="form-control" required 
+                       oninvalid="this.setCustomValidity('Kolom ini wajib diisi.')" 
+                       oninput="this.setCustomValidity('')">
             </div>
             <button type="submit" name="login" class="btn-jo mb-3">Login ke Sistem</button>
             <div class="text-center">
