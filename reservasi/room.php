@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                         </div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Email Aktif <span style="color: red;">*</span></label>
+                                <label class="form-label">Email Aktif</label>
                                 <input type="email" name="email" class="form-control" >
                             </div>
                             <div class="col-md-6">
