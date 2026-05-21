@@ -376,7 +376,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
             <a class="navbar-brand" href="home.php">Jo Cafe<br><span style="font-size: 0.8rem; color: #fff; font-weight: 400;">Authentic Coffee, Bar & Kitchen</span></a>
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#welcome">Tentang Kami</a></li>
                     <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
                     <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
