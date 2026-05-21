@@ -149,11 +149,18 @@ function get_gambar($conn, $id_gallery, $default_url) {
 
         /* Logo Hero */
         .hero-logo-container {
-            width: 450px; height: 450px; border: 2px solid white; border-radius: 50%;
+            width: 450px; height: 450px; border: 0px solid white; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; margin: 0 auto;
         }
-        .hero-logo-container img { width: 90%; border-radius: 50%; animation: imgRotate 50s linear infinite; }
-        @keyframes imgRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .hero-logo-container img {
+            width: 450px;
+            border-radius: 50%;
+            animation: flipKoin 10s infinite linear;
+        }
+        @keyframes flipKoin {
+            0% { transform: perspective(600px) rotateY(0deg); }
+            100% { transform: perspective(600px) rotateY(360deg); }
+        }
 
         /* Sections */
         .section-padding { padding: 80px 0; }
