@@ -238,8 +238,7 @@ if (isset($_POST['register'])) {
             <label class="form-label">PILIH ROLE / JABATAN</label>
 
             <select name="role_staff" class="form-select" required>
-                <option value="admin">Admin</option>
-                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>                
             </select>
         </div>
 

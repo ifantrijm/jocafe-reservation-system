@@ -30,8 +30,13 @@ if (isset($_POST['ajukan_event'])) {
     $sql = "INSERT INTO reservasi_event (id_pelanggan, tanggal_event, jam_event, no_telp, jenis_event, status_booking) 
             VALUES ('$id_pelanggan', '$tgl_event', '$jam_event', '$no_telp', '$jenis_event', 'pending')";
 
+// --- TAHAP 2: SIMPAN KE TABEL RESERVASI_EVENT ---
     if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('Berhasil! Pengajuan event Jo Cafe sedang kami tinjau.'); window.location='../index.php';</script>";
+        // Ambil ID reservasi yang baru saja dibuat
+        $id_event = mysqli_insert_id($conn);
+        
+        // Arahkan ke halaman nota dengan membawa ID tersebut
+        echo "<script> window.location='nota_event.php?id=$id_event';</script>";
     } else {
         echo "Error: " . mysqli_error($conn);
     }

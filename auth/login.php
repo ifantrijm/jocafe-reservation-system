@@ -66,7 +66,7 @@ if (isset($_POST['login'])) {
     </style>
 </head>
 <body>
-    <div class="auth-card">
+    <div class="auth-card">        
         <div class="text-center mb-4">
             <h2 style="font-weight: 800; color: #f89b1c;">JO CAFE.</h2>
             <p class="text-white">Login Management System</p>
@@ -93,6 +93,9 @@ if (isset($_POST['login'])) {
             <div class="text-center">
                 <a href="register.php" class="text-white text-decoration-none small">Belum punya akun? Registrasi dulu</a>
             </div>
+            <a href="../index.php" class="btn btn-outline-secondary w-100 mt-2">
+                <i class="fas fa-arrow-left me-2"></i> Kembali ke Beranda
+            </a>
         </form>
     </div>
 </body>
