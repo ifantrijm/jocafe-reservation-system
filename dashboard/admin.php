@@ -145,6 +145,12 @@ header("Expires: 0");
         case 'TampilanTestimoni':
             include "../TampilanTestimoni.php";
             break;
+        case 'event': 
+            include 'event.php'; // Pastikan nama filenya sama dengan yang kamu buat
+            break;
+        case 'room1': 
+            include 'room.php'; 
+            break;    
         default:
             echo "<div class='container mt-5'>
                     <h3 class='text-white'>Halaman tidak ditemukan! (Error 404)</h3>

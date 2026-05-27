@@ -2,26 +2,33 @@
 // 1. KONEKSI DATABASE (Gunakan koneksi terpusat)
 include_once "../config/koneksi.php";
 
-// Set zona waktu agar akurat saat mengecek waktu habis
-date_default_timezone_set('Asia/Jakarta');
-
 // ==========================================
 // --- FITUR TOMBOL SELESAI DITEKAN (SATUAN) ---
 // ==========================================
+// Logika untuk menyelesaikan pesanan ROOM
 if (isset($_GET['selesai_room']) && isset($_GET['id_kamar'])) {
     $id_res = $_GET['selesai_room'];
     $id_kamar = $_GET['id_kamar'];
 
+    // 1. Kosongkan meja biar bisa dipesan orang lain lagi
     mysqli_query($conn, "UPDATE room SET status = 'Tersedia' WHERE id_room = '$id_kamar'");
+
+    // 2. SOFT DELETE: Jangan hapus data, cukup update status jadi 'Selesai'
     mysqli_query($conn, "UPDATE reservasi_room SET status_pesanan = 'Selesai' WHERE id_reservasi_room = '$id_res'");
 
+    // Refresh halaman
     echo "<script>window.location='admin.php?page=home';</script>";
     exit;
 }
 
+// Logika untuk menyelesaikan pesanan EVENT
 if (isset($_GET['selesai_event'])) {
     $id_event = $_GET['selesai_event'];
+
+    // SOFT DELETE: Update status jadi 'selesai' (huruf kecil sesuai ENUM baru)
     mysqli_query($conn, "UPDATE reservasi_event SET status_booking = 'selesai' WHERE id_event_res = '$id_event'");
+
+    // Refresh halaman
     echo "<script>window.location='admin.php?page=home';</script>";
     exit;
 }
@@ -29,11 +36,13 @@ if (isset($_GET['selesai_event'])) {
 // ==========================================
 // --- LOGIKA BULK ACTION (AKSI MASSAL) ---
 // ==========================================
+// BULK ACTION UNTUK ROOM
 if (isset($_POST['bulk_selesai_room'])) {
     if (!empty($_POST['id_rooms'])) {
         $id_rooms = array_map('intval', $_POST['id_rooms']);
         $ids_string = implode(',', $id_rooms);
 
+        // 1. Cari tahu id_room (meja) mana saja yang dipakai, lalu kosongkan
         $get_kamar = mysqli_query($conn, "SELECT id_room FROM reservasi_room WHERE id_reservasi_room IN ($ids_string)");
         $kamar_arr = [];
         while($k = mysqli_fetch_assoc($get_kamar)) {
@@ -44,7 +53,9 @@ if (isset($_POST['bulk_selesai_room'])) {
             mysqli_query($conn, "UPDATE room SET status = 'Tersedia' WHERE id_room IN ($kamar_str)");
         }
 
+        // 2. Soft delete reservasinya
         mysqli_query($conn, "UPDATE reservasi_room SET status_pesanan = 'Selesai' WHERE id_reservasi_room IN ($ids_string)");
+        
         echo "<script>alert('Berhasil! Data Room terpilih telah diselesaikan.'); window.location='admin.php?page=home';</script>";
     } else {
         echo "<script>alert('Pilih minimal satu data Room dulu!'); window.history.back();</script>";
@@ -52,12 +63,14 @@ if (isset($_POST['bulk_selesai_room'])) {
     exit;
 }
 
+// BULK ACTION UNTUK EVENT
 if (isset($_POST['bulk_selesai_event'])) {
     if (!empty($_POST['id_events'])) {
         $id_events = array_map('intval', $_POST['id_events']);
         $ids_string = implode(',', $id_events);
         
         mysqli_query($conn, "UPDATE reservasi_event SET status_booking = 'selesai' WHERE id_event_res IN ($ids_string)");
+        
         echo "<script>alert('Berhasil! Data Event terpilih telah diselesaikan.'); window.location='admin.php?page=home';</script>";
     } else {
         echo "<script>alert('Pilih minimal satu data Event dulu!'); window.history.back();</script>";
@@ -125,12 +138,6 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
     }
     .table { border-collapse: separate !important; border-spacing: 0; }
     .table thead th { background: #0f1520 !important; padding: 15px !important; }
-    .anim-pulse { animation: pulse-red 1.5s infinite; }
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-    }
 </style>
 
 <div class="home-content">
@@ -226,7 +233,8 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                         <th>Kontak (WA)</th>
                         <th>Area</th>
                         <th>Kapasitas</th>
-                        <th>Tanggal & Waktu</th>
+                        <th>Tanggal</th>
+                        <!-- <th>Status</th> -->
                         <th>Bukti</th>
                         <th>Aksi</th>
                     </tr>
@@ -246,11 +254,6 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                         while ($row = mysqli_fetch_assoc($q_room)) {
                             $no_wa = $row['telepon'];
                             if (substr($no_wa, 0, 1) == '0') { $no_wa = '62' . substr($no_wa, 1); }
-                            
-                            // Logika Pengecekan Waktu Habis
-                            $waktu_sekarang = time();
-                            $waktu_selesai_res = strtotime($row['tanggal_reservasi'] . ' ' . $row['jam_selesai']);
-                            $is_overtime = ($waktu_sekarang > $waktu_selesai_res);
                     ?>
                     <tr>
                         <td>
@@ -261,16 +264,12 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                         <td><?php echo $row['telepon']; ?></td>
                         <td><?php echo $row['nama_area']; ?></td>
                         <td><?php echo $row['kapasitas']; ?> org</td>
-                        <td>
-                            <?php echo date('d M Y', strtotime($row['tanggal_reservasi'])); ?> <br>
-                            <?php if ($is_overtime): ?>
-                                <span class="badge bg-danger mt-1 anim-pulse">
-                                    <i class="fas fa-exclamation-circle me-1"></i> Melebihi Batas Waktu
-                                </span>
-                            <?php else: ?>
-                                <small class="text-info"><?php echo $row['jam_mulai']; ?> - <?php echo $row['jam_selesai']; ?></small>
-                            <?php endif; ?>
-                        </td>
+                        <td><?php echo date('d M Y', strtotime($row['tanggal_reservasi'])); ?></td>
+                        <!-- <td>
+                            <span class="badge <?php echo ($row['status_pesanan'] == 'Confirmed') ? 'bg-primary' : 'bg-warning text-dark'; ?>">
+                                <?php echo $row['status_pesanan']; ?>
+                            </span>
+                        </td> -->
                         <td>
                             <?php if(!empty($row['bukti_pembayaran'])): ?>
                                 <a href="../assets/img/bukti/<?php echo $row['bukti_pembayaran']; ?>" target="_blank" class="btn btn-sm btn-info text-dark fw-bold">
@@ -286,7 +285,7 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                                     <i class="fab fa-whatsapp"></i> WA
                                 </a>
                                 <a href="admin.php?page=home&selesai_room=<?php echo $row['id_reservasi_room']; ?>&id_kamar=<?php echo $row['id_room']; ?>" 
-                                   class="btn btn-sm <?php echo $is_overtime ? 'btn-danger anim-pulse' : 'btn-primary'; ?> fw-bold" onclick="return confirm('Selesaikan pesanan ini? Data akan masuk ke Master Data.')">
+                                   class="btn btn-sm btn-primary fw-bold" onclick="return confirm('Selesaikan pesanan ini? Data akan masuk ke Master Data.')">
                                    <i class="fas fa-check"></i>
                                 </a>
                             </div>

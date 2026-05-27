@@ -29,7 +29,7 @@ $query = mysqli_query($conn, "SELECT * FROM room");
 
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand fs-4" href="#">JO EVENT.</a>
+            <a class="navbar-brand fs-4" href="#">JO CAFE.</a>
             <a href="../page_reservasi.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
         </div>
     </nav>

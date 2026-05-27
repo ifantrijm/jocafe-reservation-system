@@ -31,30 +31,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     $id_room     = $_POST['id_room'];
     $tgl         = $_POST['tanggal_reservasi'];
     $jam_mulai   = $_POST['jam_mulai'];
+    $jam_selesai = $_POST['jam_selesai'];
     $deskripsi   = mysqli_real_escape_string($conn, $_POST['jenis']);
-    
-    $jam_selesai_input = $_POST['jam_selesai'];
 
-    // --- LOGIKA JAM SELESAI OTOMATIS & VALIDASI ---
+    // --- VALIDASI BACKEND: Cek Durasi Maksimal 6 Jam ---
     $time_mulai = strtotime($jam_mulai);
+    $time_selesai = strtotime($jam_selesai);
+    $selisih_jam = ($time_selesai - $time_mulai) / 3600; // Ubah detik ke jam
 
-    if (empty($jam_selesai_input)) {
-        // Jika pelanggan TIDAK mengisi jam selesai, otomatis set jadi +6 jam
-        $time_selesai = strtotime("+6 hours", $time_mulai);
-        $jam_selesai = date('H:i', $time_selesai);
-    } else {
-        // Jika pelanggan mengisi manual, lakukan validasi (maksimal 6 jam)
-        $jam_selesai = $jam_selesai_input;
-        $time_selesai = strtotime($jam_selesai);
-        $selisih_jam = ($time_selesai - $time_mulai) / 3600; // Ubah detik ke jam
-
-        if ($selisih_jam <= 0) {
-            echo "<script>alert('Jam selesai tidak boleh lebih awal atau sama dengan jam mulai!'); window.history.back();</script>";
-            exit;
-        } elseif ($selisih_jam > 6) {
-            echo "<script>alert('Maaf, maksimal durasi reservasi adalah 6 jam!'); window.history.back();</script>";
-            exit;
-        }
+    if ($selisih_jam <= 0) {
+        echo "<script>alert('Jam selesai tidak boleh lebih awal atau sama dengan jam mulai!'); window.history.back();</script>";
+        exit;
+    } elseif ($selisih_jam > 6) {
+        echo "<script>alert('Maaf, maksimal durasi reservasi adalah 6 jam!'); window.history.back();</script>";
+        exit;
     }
 
     // Logika Upload Bukti Bayar
@@ -192,19 +182,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                                 <label class="form-label">Jam Mulai <span style="color: red;">*</span></label>
                                 <input type="time" id="jam_mulai" name="jam_mulai" class="form-control" required>
                             </div>
-                            <div class="col-6">
-                                <label class="form-label">Jam Selesai (Opsional)</label>
-                                <input type="time" id="jam_selesai" name="jam_selesai" class="form-control" placeholder="Otomatis 6 Jam">
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <small class="text-info"><i class="fas fa-info-circle me-1"></i> Maksimal pemakaian 6 jam. Jika dikosongkan, otomatis menjadi 6 jam dari jam mulai.</small>
-                        </div>
+
 
                         <h5 class="section-title">3. Konfirmasi Pembayaran <span style="color: red;">*</span></h5>
                         <div class="mb-4 box p-3">
                             <div class="row g-2">
-
                                 <div class="col-12">
                                     <p class="text-center">Via Rekening </p>
                                     <button type="button" class="btn btn-gold w-100" onclick="alert('BCA Jo Cafe: 0241464007 \na.n Jo Cafe Official')">
@@ -232,13 +214,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    // Validasi form pakai JavaScript
+    // Validasi saat form mau disubmit (Biar pelanggan nggak capek nunggu loading kalau salah)
     document.getElementById('formReservasi').addEventListener('submit', function(e) {
         let mulai = document.getElementById('jam_mulai').value;
         let selesai = document.getElementById('jam_selesai').value;
 
-        // Cek divalidasi HANYA JIKA jam selesai diisi oleh pelanggan
         if (mulai && selesai) {
+            // Konversi ke objek Date dummy (hari yang sama)
             let timeMulai = new Date("2000-01-01T" + mulai);
             let timeSelesai = new Date("2000-01-01T" + selesai);
 
@@ -246,10 +228,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 
             if (diffHours <= 0) {
                 alert("Jam selesai harus lebih akhir dari jam mulai!");
-                e.preventDefault(); 
+                e.preventDefault(); // Batalkan pengiriman form
             } else if (diffHours > 6) {
                 alert("Maksimal waktu pemakaian ruangan adalah 6 jam!");
-                e.preventDefault(); 
+                e.preventDefault(); // Batalkan pengiriman form
             }
         }
     });
