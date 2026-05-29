@@ -5,6 +5,13 @@ include_once "../config/koneksi.php";
 // Set zona waktu agar akurat saat mengecek waktu habis
 date_default_timezone_set('Asia/Jakarta');
 
+// Ambil ID pesanan terakhir saat halaman ini pertama kali dibuka
+$q_max_room_awal = mysqli_query($conn, "SELECT MAX(id_reservasi_room) as max_room FROM reservasi_room");
+$max_room_awal = mysqli_fetch_assoc($q_max_room_awal)['max_room'] ?? 0;
+
+$q_max_event_awal = mysqli_query($conn, "SELECT MAX(id_event_res) as max_event FROM reservasi_event");
+$max_event_awal = mysqli_fetch_assoc($q_max_event_awal)['max_event'] ?? 0;
+
 // ==========================================
 // --- FITUR TOMBOL SELESAI DITEKAN (SATUAN) ---
 // ==========================================
@@ -219,7 +226,7 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                 <thead>
                     <tr>
                         <th style="width: 50px;">
-                            <input class="form-check-input border-warning" type="checkbox" id="cekSemuaRoom">
+                            <input class="form-check-input border-warning" type="checkbox" id="cekSemuaRoom" onchange="centangSemuaRoom(this)">
                         </th>
                         <th>ID</th>
                         <th>Pemesan</th>
@@ -233,6 +240,9 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                 </thead>
                 <tbody>
                     <?php
+                    // Ambil waktu server detik ini juga
+                    $waktu_sekarang_php = strtotime('now'); 
+
                     $q_room = mysqli_query($conn, "
                         SELECT r_res.*, p.nama, p.telepon, room.nama_area, room.kapasitas 
                         FROM reservasi_room r_res 
@@ -247,10 +257,16 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                             $no_wa = $row['telepon'];
                             if (substr($no_wa, 0, 1) == '0') { $no_wa = '62' . substr($no_wa, 1); }
                             
-                            // Logika Pengecekan Waktu Habis
-                            $waktu_sekarang = time();
-                            $waktu_selesai_res = strtotime($row['tanggal_reservasi'] . ' ' . $row['jam_selesai']);
-                            $is_overtime = ($waktu_sekarang > $waktu_selesai_res);
+                            // Hitung jam selesai & Bandingkan saat halaman pertama kali diload
+                            if (empty($row['jam_selesai']) || $row['jam_selesai'] == '00:00:00') {
+                                $waktu_berakhir = strtotime($row['tanggal_reservasi'] . ' ' . $row['jam_mulai'] . ' + 6 hours');
+                            } else {
+                                $waktu_berakhir = strtotime($row['tanggal_reservasi'] . ' ' . $row['jam_selesai']);
+                            }
+                            $jam_selesai_tampil = date('H:i', $waktu_berakhir);
+                            
+                            // Cek apakah sudah melebihi batas waktu SEJAK PERTAMA DIBUKA
+                            $is_overtime = ($waktu_sekarang_php >= $waktu_berakhir);
                     ?>
                     <tr>
                         <td>
@@ -261,32 +277,33 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                         <td><?php echo $row['telepon']; ?></td>
                         <td><?php echo $row['nama_area']; ?></td>
                         <td><?php echo $row['kapasitas']; ?> org</td>
-                        <td>
+                        
+                        <td id="kolom-waktu-<?php echo $row['id_reservasi_room']; ?>">
                             <?php echo date('d M Y', strtotime($row['tanggal_reservasi'])); ?> <br>
+                            
                             <?php if ($is_overtime): ?>
-                                <span class="badge bg-danger mt-1 anim-pulse">
-                                    <i class="fas fa-exclamation-circle me-1"></i> Melebihi Batas Waktu
-                                </span>
+                                <span class="badge bg-danger mt-1 anim-pulse"><i class="fas fa-exclamation-circle me-1"></i> Melebihi Batas Waktu</span>
                             <?php else: ?>
-                                <small class="text-info"><?php echo $row['jam_mulai']; ?> - <?php echo $row['jam_selesai']; ?></small>
+                                <small class="text-info wkt-normal"><?php echo date('H:i', strtotime($row['jam_mulai'])); ?> - <?php echo $jam_selesai_tampil; ?></small>
                             <?php endif; ?>
                         </td>
+                        
                         <td>
                             <?php if(!empty($row['bukti_pembayaran'])): ?>
-                                <a href="../assets/img/bukti/<?php echo $row['bukti_pembayaran']; ?>" target="_blank" class="btn btn-sm btn-info text-dark fw-bold">
+                                <button type="button" class="btn btn-sm btn-info text-dark fw-bold" onclick="bukaBukti('<?php echo $row['bukti_pembayaran']; ?>', '<?php echo $row['id_reservasi_room']; ?>')">
                                     <i class="fas fa-receipt"></i> Cek
-                                </a>
+                                </button>
                             <?php else: ?>
-                                <span class=" small text-muted">Belum ada</span>
+                                <span class="small text-muted">Belum ada</span>
                             <?php endif; ?>
                         </td>
                         <td>
                             <div class="d-flex gap-2">
-                                <a href="https://wa.me/<?php echo $no_wa; ?>" target="_blank" class="btn btn-sm btn-success fw-bold">
-                                    <i class="fab fa-whatsapp"></i> WA
-                                </a>
+                                <a href="https://wa.me/<?php echo $no_wa; ?>" target="_blank" class="btn btn-sm btn-success fw-bold"><i class="fab fa-whatsapp"></i> WA</a>
+                                
                                 <a href="admin.php?page=home&selesai_room=<?php echo $row['id_reservasi_room']; ?>&id_kamar=<?php echo $row['id_room']; ?>" 
-                                   class="btn btn-sm <?php echo $is_overtime ? 'btn-danger anim-pulse' : 'btn-primary'; ?> fw-bold" onclick="return confirm('Selesaikan pesanan ini? Data akan masuk ke Master Data.')">
+                                   id="btn-selesai-<?php echo $row['id_reservasi_room']; ?>"
+                                   class="btn btn-sm <?php echo $is_overtime ? 'btn-danger anim-pulse' : 'btn-primary'; ?> fw-bold" onclick="return confirm('Selesaikan pesanan ini?')">
                                    <i class="fas fa-check"></i>
                                 </a>
                             </div>
@@ -315,7 +332,7 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
                 <thead>
                     <tr>
                         <th style="width: 50px;">
-                            <input class="form-check-input border-warning" type="checkbox" id="cekSemuaEvent">
+                            <input class="form-check-input border-warning" type="checkbox" id="cekSemuaEvent" onchange="centangSemuaEvent(this)">
                         </th>
                         <th>ID</th>
                         <th>Pemesan</th>
@@ -395,24 +412,106 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
         </div>
     </form>
 
+    <div id="popupBukti" style="display:none; position:fixed; z-index:99999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); backdrop-filter: blur(5px); justify-content:center; align-items:center;">
+        <div style="background-color:#1c2128; padding:20px; border-radius:15px; border:2px solid #f89d13; text-align:center; max-width:90%; position:relative;">
+            <h5 class="text-white mb-3 fw-bold"><i class="fas fa-receipt text-warning me-2"></i>Bukti #<span id="popupIdRes"></span></h5>
+            <img id="popupImg" src="" style="max-width:100%; max-height:70vh; border-radius:8px; border:1px solid #6c757d;">
+            <div class="mt-3">
+                <small class="text-muted">Tekan <b>Enter</b>, <b>Esc</b>, atau klik di mana saja untuk menutup.</small>
+            </div>
+        </div>
+    </div> 
+
 </div>
 
 <script>
-    // Logika Select All untuk Room
-    const cekSemuaRoom = document.getElementById('cekSemuaRoom');
-    const cekSatuanRoom = document.querySelectorAll('.cek-room');
-    if(cekSemuaRoom) {
-        cekSemuaRoom.addEventListener('change', function() {
-            cekSatuanRoom.forEach(cb => cb.checked = this.checked);
+    // ==========================================
+    // 1. LOGIKA SELECT ALL (GAYA INLINE - 100% ANTI GAGAL)
+    // ==========================================
+    function centangSemuaRoom(sumber) {
+        let barisRoom = document.querySelectorAll('.cek-room');
+        barisRoom.forEach(function(checkbox) {
+            checkbox.checked = sumber.checked;
         });
     }
 
-    // Logika Select All untuk Event
-    const cekSemuaEvent = document.getElementById('cekSemuaEvent');
-    const cekSatuanEvent = document.querySelectorAll('.cek-event');
-    if(cekSemuaEvent) {
-        cekSemuaEvent.addEventListener('change', function() {
-            cekSatuanEvent.forEach(cb => cb.checked = this.checked);
+    function centangSemuaEvent(sumber) {
+        let barisEvent = document.querySelectorAll('.cek-event');
+        barisEvent.forEach(function(checkbox) {
+            checkbox.checked = sumber.checked;
         });
     }
+
+    // ==========================================
+    // 2. FUNGSI POPUP BUKTI PEMBAYARAN
+    // ==========================================
+    function bukaBukti(namaFile, idRes) {
+        document.getElementById('popupImg').src = '../assets/img/bukti/' + namaFile;
+        document.getElementById('popupIdRes').innerText = idRes;
+        document.getElementById('popupBukti').style.display = 'flex'; 
+    }
+
+    document.getElementById('popupBukti').addEventListener('click', function() {
+        this.style.display = 'none';
+        document.getElementById('popupImg').src = ''; 
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === 'Escape') {
+            document.getElementById('popupBukti').style.display = 'none';
+            document.getElementById('popupImg').src = '';
+        }
+    });
+
+    // ==========================================
+    // 3. AJAX POLLING: CEK WAKTU REAL-TIME
+    // ==========================================
+    function jalankanCekWaktu() {
+        fetch('cek_waktu_room.php')
+            .then(response => response.json())
+            .then(hasil => {
+                if (hasil.data_overtime && hasil.data_overtime.length > 0) {
+                    hasil.data_overtime.forEach(function(id_res) {
+                        let tdWaktu = document.getElementById('kolom-waktu-' + id_res);
+                        let btnSelesai = document.getElementById('btn-selesai-' + id_res);
+
+                        // Ubah jadi merah HANYA JIKA belum merah
+                        if (tdWaktu && !tdWaktu.innerHTML.includes('bg-danger')) {
+                            let tglLama = tdWaktu.innerHTML.split('<br>')[0];
+                            tdWaktu.innerHTML = tglLama + '<br><span class="badge bg-danger mt-1 anim-pulse"><i class="fas fa-exclamation-circle me-1"></i> Melebihi Batas Waktu</span>';
+                        }
+
+                        if (btnSelesai && btnSelesai.classList.contains('btn-primary')) {
+                            btnSelesai.classList.remove('btn-primary');
+                            btnSelesai.classList.add('btn-danger', 'anim-pulse');
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Gagal Polling Waktu:', error));
+    }
+
+    // Eksekusi seketika saat halaman pertama kali dibuka
+    jalankanCekWaktu();
+    
+    // Ulangi eksekusinya setiap 10 detik secara otomatis
+    setInterval(jalankanCekWaktu, 10000);
+
+    // ==========================================
+    // 6. RADAR PESANAN BARU (AUTO-REFRESH PINTAR)
+    // ==========================================
+    let maxRoomSaatIni = <?php echo $max_room_awal; ?>;
+    let maxEventSaatIni = <?php echo $max_event_awal; ?>;
+
+    setInterval(function() {
+        fetch('cek_pesanan_baru.php')
+            .then(response => response.json())
+            .then(data => {
+                // Jika ID dari database lebih besar dari ID di layar, berarti ada yang booking!
+                if (data.max_room > maxRoomSaatIni || data.max_event > maxEventSaatIni) {
+                    window.location.reload(); // Refresh halaman otomatis
+                }
+            })
+            .catch(error => console.error('Gagal Cek Pesanan Baru:', error));
+    }, 15000); // Ngintip database setiap 15 detik
 </script>

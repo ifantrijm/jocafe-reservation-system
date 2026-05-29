@@ -183,7 +183,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                         </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Kedatangan <span style="color: red;">*</span></label>
-                                <input type="date" name="tanggal_reservasi" class="form-control" required>
+                                <input type="date" name="tanggal_reservasi" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
                             </div>
                         </div>
 
@@ -216,7 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 
                         <div class="mb-4">
                             <label class="form-label text-muted small">Upload Bukti Pembayaran (JPG/PNG)</label>
-                            <input type="file" name="bukti_pembayaran" class="form-control" accept="image/*" required>
+                           <input type="file" name="bukti_pembayaran" class="form-control" accept=".jpg, .jpeg, .png" required>
                         </div>
 
                         <button type="submit" name="proses_reservasi" class="btn btn-gold w-100 fs-5 mt-2">
@@ -232,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    // Validasi form pakai JavaScript
+    // Validasi form pakai JavaScript (Cek Total Durasi Maksimal)
     document.getElementById('formReservasi').addEventListener('submit', function(e) {
         let mulai = document.getElementById('jam_mulai').value;
         let selesai = document.getElementById('jam_selesai').value;
@@ -251,6 +251,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
                 alert("Maksimal waktu pemakaian ruangan adalah 6 jam!");
                 e.preventDefault(); 
             }
+        }
+    });
+
+    // PERUBAHAN: Kunci Jam Selesai agar tidak bisa lebih awal dari Jam Mulai secara interaktif
+    document.getElementById('jam_mulai').addEventListener('change', function() {
+        let jamMulaiValue = this.value;
+        let inputJamSelesai = document.getElementById('jam_selesai');
+        
+        // Set nilai minimal pada input jam selesai
+        inputJamSelesai.min = jamMulaiValue;
+        
+        // Kalau jam selesai sudah telanjur diisi dan nilainya lebih kecil dari jam mulai, reset!
+        if (inputJamSelesai.value && inputJamSelesai.value <= jamMulaiValue) {
+            inputJamSelesai.value = ''; // Kosongkan
+            alert("Jam selesai otomatis direset karena tidak boleh lebih awal atau sama dengan jam mulai!");
         }
     });
 

@@ -126,7 +126,7 @@ if (isset($_POST['ajukan_event'])) {
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Tanggal Pelaksanaan <span style="color: red;">*</span></label>
-                                <input type="date" id="tanggal_event" name="tanggal_event" class="form-control" required>
+                                <input type="date" id="tanggal_event" name="tanggal_event" class="form-control" min="<?php echo date('Y-m-d'); ?>" required>
                                 <div id="info_jadwal" class="mt-2 p-2 rounded" style="display: none; background: rgba(0,0,0,0.2);"></div>
                             </div>
                         </div>
