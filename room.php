@@ -1,38 +1,56 @@
 <?php
-// Pastikan session sudah berjalan dari file induk admin.php
+// Pastikan session sudah berjalan
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // 1. KONEKSI DATABASE
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
+
+// FUNGSI KOMPRESI & RESIZE GAMBAR
+function compressImage($source, $destination, $quality) {
+    $info = getimagesize($source);
+    if ($info['mime'] == 'image/jpeg') $image = imagecreatefromjpeg($source);
+    elseif ($info['mime'] == 'image/png') $image = imagecreatefrompng($source);
+    elseif ($info['mime'] == 'image/webp') $image = imagecreatefromwebp($source);
+    else return false;
+
+    // Resize (Lebar maks 800px agar tampilan room tetap proporsional)
+    $width = $info[0];
+    $height = $info[1];
+    $new_width = 800; 
+    $new_height = ($height / $width) * $new_width;
+    
+    $tmp = imagecreatetruecolor($new_width, $new_height);
+    imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+    
+    imagejpeg($tmp, $destination, $quality);
+    imagedestroy($image);
+    imagedestroy($tmp);
+    return $destination;
+}
 
 // 2. LOGIKA TAMBAH DATA AREA
 if (isset($_POST['tambah'])) {
     $nama = mysqli_real_escape_string($conn, $_POST['nama_area']);
     $kapasitas = mysqli_real_escape_string($conn, $_POST['kapasitas']);
-    
     $id_admin = $_SESSION['id_admin'] ?? 'NULL';
     $nama_file = ""; 
     
-    // Proses Upload File Fisik
     if (isset($_FILES['gambar']['name']) && $_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']); 
-        $tmp_file = $_FILES['gambar']['tmp_name'];
         $direktori = "../assets/img/room/"; 
+        $path = $direktori . $nama_file;
         
         if (!is_dir($direktori)) { mkdir($direktori, 0777, true); }
         
-        move_uploaded_file($tmp_file, $direktori . $nama_file);
+        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $path)) {
+            compressImage($path, $path, 70); // Kompres kualitas 70%
+        }
     }
     
-    // Insert ke database
-    $query = "INSERT INTO room (id_admin, nama_area, kapasitas, gambar, status) 
-              VALUES ($id_admin, '$nama', '$kapasitas', '$nama_file', 'Tersedia')";
-              
-    mysqli_query($conn, $query);
+    mysqli_query($conn, "INSERT INTO room (id_admin, nama_area, kapasitas, gambar, status) VALUES ($id_admin, '$nama', '$kapasitas', '$nama_file', 'Tersedia')");
     
-    // REDIRECT FIX: Pakai JS
     echo "<script>window.location.href='admin.php?page=room';</script>";
     exit;
 }
@@ -48,14 +66,14 @@ if (isset($_POST['update'])) {
     $id_admin = $_SESSION['id_admin'] ?? 'NULL';
     $nama_file = $gambar_lama; 
     
-    // Kalau admin upload foto baru
     if (isset($_FILES['gambar_baru']['name']) && $_FILES['gambar_baru']['name'] != '') {
         $nama_file = time() . "_" . basename($_FILES['gambar_baru']['name']);
-        $tmp_file = $_FILES['gambar_baru']['tmp_name'];
         $direktori = "../assets/img/room/";
+        $path = $direktori . $nama_file;
         
-        if (move_uploaded_file($tmp_file, $direktori . $nama_file)) {
-            // Hapus foto lama biar hemat storage
+        if (move_uploaded_file($_FILES['gambar_baru']['tmp_name'], $path)) {
+            compressImage($path, $path, 70); // Kompres kualitas 70%
+            
             if (!empty($gambar_lama) && file_exists($direktori . $gambar_lama)) {
                 unlink($direktori . $gambar_lama);
             }
@@ -64,7 +82,6 @@ if (isset($_POST['update'])) {
     
     mysqli_query($conn, "UPDATE room SET id_admin=$id_admin, nama_area='$nama', kapasitas='$kapasitas', status='$status', gambar='$nama_file' WHERE id_room='$id'");
     
-    // REDIRECT FIX: Pakai JS
     echo "<script>window.location.href='admin.php?page=room';</script>";
     exit;
 }
@@ -72,8 +89,6 @@ if (isset($_POST['update'])) {
 // 4. LOGIKA HAPUS DATA AREA
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-    
-    // Hapus file fisik dulu
     $cek_foto = mysqli_query($conn, "SELECT gambar FROM room WHERE id_room = '$id'");
     $data_foto = mysqli_fetch_assoc($cek_foto);
     
@@ -81,10 +96,7 @@ if (isset($_GET['hapus'])) {
         unlink("../assets/img/room/" . $data_foto['gambar']);
     }
 
-    // Baru hapus data dari database
     mysqli_query($conn, "DELETE FROM room WHERE id_room = '$id'");
-    
-    // REDIRECT FIX: Pakai JS
     echo "<script>window.location.href='admin.php?page=room';</script>";
     exit;
 }
@@ -92,7 +104,6 @@ if (isset($_GET['hapus'])) {
 
 <style>
     .room-content { font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
-    .header-title { font-weight: 800; font-size: 2.2rem; margin-bottom: 0; }
     .management-card { background-color: #111826; border: 1px solid #1f2937; border-radius: 12px; padding: 35px; margin-top: 30px; }
     .table { color: white; width: 100%; border-collapse: collapse;}
     .table thead th { color: #f89b1c; border-bottom: 2px solid #1f2937; padding: 15px 10px; background-color: transparent; text-align: left; }
@@ -123,13 +134,20 @@ if (isset($_GET['hapus'])) {
     .modal-title { font-weight: 700; color: #f89b1c; margin: 0; }
     .text-label { color: #8b95a5; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; display: block; margin-top: 10px;}
     .btn-close-white { background: transparent; border: 0; color: white; font-size: 1.2rem; cursor: pointer; }
+
+    @media (max-width: 768px) {
+        .header-title { font-size: 1.8rem; }
+        .management-card, .testimoni-wrapper { padding: 15px; } /* Kurangi padding biar gak sempit */
+        .table { min-width: 800px; } /* Paksa tabel bisa discroll pakai jari */
+        .d-flex.justify-content-between { flex-direction: column; gap: 15px; text-align: center; }
+        .btn-jo { width: 100%; }
+    }
 </style>
 
 <div class="container room-content" style="max-width: 1050px; margin-top: 20px;">
     <div class="d-flex justify-content-between align-items-center">
         <div>
-            <h1 class="header-title">Management <span style="color: #f89b1c;">Room</span></h1>
-            <div class="header-subtitle mt-1 text-muted">Sistem Informasi Pengelolaan Area & Meja Jo Cafe</div>
+            <h2 class="title fw-bold">Management <span style="color: #f89b1c;">Room</span></h2>
         </div>
         <button class="btn btn-jo" data-bs-toggle="modal" data-bs-target="#addModal">
             + Tambah Area

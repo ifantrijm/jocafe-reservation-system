@@ -1,5 +1,5 @@
 <?php
-include "../config/koneksi.php";
+require "../config/koneksi.php";
 
 // Cari ID terbesar (terbaru) dari tabel room dan event
 $q_room = mysqli_query($conn, "SELECT MAX(id_reservasi_room) as max_room FROM reservasi_room");

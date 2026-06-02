@@ -1,11 +1,34 @@
 <?php
-// Pastikan session sudah aktif dari halaman utama admin untuk mengambil id_admin
+// Pastikan session sudah aktif
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // 1. KONEKSI DATABASE
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
+
+// FUNGSI KOMPRESI & RESIZE GAMBAR
+function compressImage($source, $destination, $quality) {
+    $info = getimagesize($source);
+    if ($info['mime'] == 'image/jpeg') $image = imagecreatefromjpeg($source);
+    elseif ($info['mime'] == 'image/png') $image = imagecreatefrompng($source);
+    elseif ($info['mime'] == 'image/webp') $image = imagecreatefromwebp($source);
+    else return false;
+
+    // Resize (Lebar maks 1000px agar galeri tetap terlihat tajam tapi ringan)
+    $width = $info[0];
+    $height = $info[1];
+    $new_width = 1000; 
+    $new_height = ($height / $width) * $new_width;
+    
+    $tmp = imagecreatetruecolor($new_width, $new_height);
+    imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+    
+    imagejpeg($tmp, $destination, $quality);
+    imagedestroy($image);
+    imagedestroy($tmp);
+    return $destination;
+}
 
 // --- FITUR EDIT: AMBIL DATA LAMA ---
 $is_edit = false;
@@ -25,7 +48,6 @@ if (isset($_POST['simpan'])) {
     $tanggal = $_POST['tanggal'];
     $id_target = $_POST['id_gallery']; 
     
-    // Ambil ID Admin yang sedang login
     $id_admin = $_SESSION['id_admin'] ?? 'NULL';
     $nama_file = $_POST['gambar_lama']; 
     
@@ -33,8 +55,13 @@ if (isset($_POST['simpan'])) {
     if (!empty($_FILES['gambar']['tmp_name'])) {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']);
         $direktori = "../assets/img/gallery/"; 
+        $path = $direktori . $nama_file;
         
-        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $direktori . $nama_file)) {
+        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $path)) {
+            // EKSEKUSI KOMPRESI (Kualitas 75 agar galeri tetap jernih)
+            compressImage($path, $path, 75);
+            
+            // Hapus gambar lama jika ada
             if (!empty($_POST['gambar_lama']) && file_exists($direktori . $_POST['gambar_lama'])) {
                 unlink($direktori . $_POST['gambar_lama']);
             }
@@ -42,28 +69,17 @@ if (isset($_POST['simpan'])) {
     }
 
     if ($id_target) {
-        // Query Update - Memperbarui data termasuk kolom kategori baru
-        $query = "UPDATE gallery SET 
-                    id_admin = $id_admin,
-                    kategori = '$kategori',
-                    keterangan = '$keterangan', 
-                    tanggal = '$tanggal', 
-                    gambar = '$nama_file' 
-                  WHERE id_gallery = '$id_target'";
+        $query = "UPDATE gallery SET id_admin = $id_admin, kategori = '$kategori', keterangan = '$keterangan', tanggal = '$tanggal', gambar = '$nama_file' WHERE id_gallery = '$id_target'";
     } else {
-        // Query Insert - Menambahkan data baru lengkap dengan kategori
-        $query = "INSERT INTO gallery (id_admin, gambar, kategori, keterangan, tanggal) 
-                  VALUES ($id_admin, '$nama_file', '$kategori', '$keterangan', '$tanggal')";
+        $query = "INSERT INTO gallery (id_admin, gambar, kategori, keterangan, tanggal) VALUES ($id_admin, '$nama_file', '$kategori', '$keterangan', '$tanggal')";
     }
     
     mysqli_query($conn, $query);
-    
-    // Redirect kembali ke halaman manajemen galeri
     echo "<script>window.location.href='admin.php?page=galeri';</script>";
     exit;
 }
 
-// 3. LOGIKA HAPUS
+// 3. LOGIKA HAPUS (Tetap sama)
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
     $cek = mysqli_query($conn, "SELECT gambar FROM gallery WHERE id_gallery = '$id'");
@@ -73,7 +89,6 @@ if (isset($_GET['hapus'])) {
         unlink("../assets/img/gallery/" . $data['gambar']);
     }
     mysqli_query($conn, "DELETE FROM gallery WHERE id_gallery = '$id'");
-    
     echo "<script>window.location.href='admin.php?page=galeri';</script>";
     exit;
 }
@@ -81,7 +96,7 @@ if (isset($_GET['hapus'])) {
 
 <style>
     .content-gallery { padding:20px; max-width:1100px; margin:auto; color: white; font-family: 'Plus Jakarta Sans', sans-serif;}
-    .title { font-size:24px; margin-bottom:20px; font-weight: bold;}
+    .title { margin-bottom:20px; font-weight: bold;}
     .stats { margin-bottom:20px; }
     .stat-box { background:#1c2128; padding:20px; border-radius:10px; border: 1px solid #444; }
     .grid { display:flex; gap:20px; align-items:flex-start; }
@@ -95,10 +110,16 @@ if (isset($_GET['hapus'])) {
     .btn-del { background: crimson; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; margin-left: 5px; }
     .btn-edit { background: orange; color: black; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; }
     .cancel-edit { display: block; text-align: center; margin-top: 10px; color: #aaa; text-decoration: none; font-size: 12px; }
+    @media (max-width: 768px) {
+        .grid { flex-direction: column; } /* Bikin form dan tabel jadi atas-bawah */
+        .form { width: 100%; position: relative; top: 0; } /* Form menuhi layar */
+        .card { width: 100%; overflow-x: auto; box-sizing: border-box; } /* Tabel bisa digeser kiri-kanan */
+        table { min-width: 650px; } /* Tabel gak gepeng */
+    }
 </style>
 
 <div class="content-gallery">
-    <div class="title">Management Gallery</div>
+    <h2 class="title fw-bold mb-4">Management <span style="color: #f89d13;">Gallery</span> </h2>
 
     <div class="stats">
         <div class="stat-box">

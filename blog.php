@@ -1,11 +1,34 @@
 <?php
-// Pastikan session sudah dimulai di admin.php, jika belum atau berdiri sendiri, aktifkan session_start()
+// Pastikan session sudah dimulai
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // KONEKSI DATABASE
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
+
+// FUNGSI KOMPRESI GAMBAR
+function compressImage($source, $destination, $quality) {
+    $info = getimagesize($source);
+    if ($info['mime'] == 'image/jpeg') $image = imagecreatefromjpeg($source);
+    elseif ($info['mime'] == 'image/png') $image = imagecreatefrompng($source);
+    elseif ($info['mime'] == 'image/webp') $image = imagecreatefromwebp($source);
+    else return false;
+
+    // Resize (Lebar maks 800px)
+    $width = $info[0];
+    $height = $info[1];
+    $new_width = 800; 
+    $new_height = ($height / $width) * $new_width;
+    
+    $tmp = imagecreatetruecolor($new_width, $new_height);
+    imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+    
+    imagejpeg($tmp, $destination, $quality);
+    imagedestroy($image);
+    imagedestroy($tmp);
+    return $destination;
+}
 
 // AMBIL DATA EDIT
 $editData = null;
@@ -21,24 +44,20 @@ if (isset($_POST['update_artikel'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
     $isi = mysqli_real_escape_string($conn, $_POST['isi']);
     $tanggal = date('Y-m-d H:i:s');
-    
-    // Log Aktivitas: Ambil ID Admin yang sedang login dari session
     $id_admin = $_SESSION['id_admin'] ?? 'NULL';
 
     if ($_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . $_FILES['gambar']['name'];
-        move_uploaded_file($_FILES['gambar']['tmp_name'], "../assets/img/blog/" . $nama_file);
+        $path = "../assets/img/blog/" . $nama_file;
+        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $path)) {
+            compressImage($path, $path, 70); // Kompres kualitas 70%
+        }
 
-        mysqli_query($conn, "UPDATE blog 
-            SET id_admin=$id_admin, judul='$judul', isi='$isi', gambar='$nama_file', tanggal='$tanggal'
-            WHERE id_blog='$id'");
+        mysqli_query($conn, "UPDATE blog SET id_admin=$id_admin, judul='$judul', isi='$isi', gambar='$nama_file', tanggal='$tanggal' WHERE id_blog='$id'");
     } else {
-        mysqli_query($conn, "UPDATE blog 
-            SET id_admin=$id_admin, judul='$judul', isi='$isi', tanggal='$tanggal'
-            WHERE id_blog='$id'");
+        mysqli_query($conn, "UPDATE blog SET id_admin=$id_admin, judul='$judul', isi='$isi', tanggal='$tanggal' WHERE id_blog='$id'");
     }
 
-    // FIX HEADERS: Menggunakan JavaScript Redirect agar sinkron dengan template admin
     echo "<script>window.location.href='admin.php?page=blog';</script>";
     exit;
 }
@@ -48,21 +67,19 @@ if (isset($_POST['tambah_artikel'])) {
     $judul = mysqli_real_escape_string($conn, $_POST['judul']);
     $isi = mysqli_real_escape_string($conn, $_POST['isi']);
     $tanggal = date('Y-m-d H:i:s');
-    
-    // Log Aktivitas: Ambil ID Admin yang sedang login dari session
     $id_admin = $_SESSION['id_admin'] ?? 'NULL';
-
     $nama_file = "";
 
     if ($_FILES['gambar']['name'] != '') {
         $nama_file = time() . "_" . basename($_FILES['gambar']['name']);
-        move_uploaded_file($_FILES['gambar']['tmp_name'], "../assets/img/blog/" . $nama_file);
+        $path = "../assets/img/blog/" . $nama_file;
+        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $path)) {
+            compressImage($path, $path, 70); // Kompres kualitas 70%
+        }
     }
 
-    mysqli_query($conn, "INSERT INTO blog (id_admin, judul, isi, gambar, tanggal) 
-                         VALUES ($id_admin, '$judul', '$isi', '$nama_file', '$tanggal')");
+    mysqli_query($conn, "INSERT INTO blog (id_admin, judul, isi, gambar, tanggal) VALUES ($id_admin, '$judul', '$isi', '$nama_file', '$tanggal')");
 
-    // FIX HEADERS: Menggunakan JavaScript Redirect
     echo "<script>window.location.href='admin.php?page=blog';</script>";
     exit;
 }
@@ -70,21 +87,17 @@ if (isset($_POST['tambah_artikel'])) {
 // HAPUS
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
-
     $cek = mysqli_query($conn, "SELECT gambar FROM blog WHERE id_blog='$id'");
     $data = mysqli_fetch_assoc($cek);
-
     if (!empty($data['gambar']) && file_exists("../assets/img/blog/".$data['gambar'])) {
         unlink("../assets/img/blog/".$data['gambar']);
     }
-
     mysqli_query($conn, "DELETE FROM blog WHERE id_blog='$id'");
-    
-    // FIX HEADERS: Menggunakan JavaScript Redirect
     echo "<script>window.location.href='admin.php?page=blog';</script>";
     exit;
 }
 ?>
+
 
 <style>
     .blog-content { color: white; padding: 20px; font-family: 'Plus Jakarta Sans', sans-serif;}
@@ -104,6 +117,13 @@ if (isset($_GET['hapus'])) {
     .btn-edit { background: orange; color: black; padding: 6px 12px; border-radius: 5px; text-decoration: none; font-size: 0.85rem;}
     
     .cancel-edit { display: block; text-align: center; margin-top: 10px; color: #aaa; text-decoration: none; font-size: 12px; }
+
+    @media (max-width: 768px) {
+        .blog-grid { flex-direction: column; }
+        .blog-form-box { width: 100%; }
+        .blog-table-box { width: 100%; overflow-x: auto; box-sizing: border-box; padding: 10px; }
+        .blog-table { min-width: 700px; } /* Tabel aman digeser horizontal */
+    }
 </style>
 
 <div class="blog-content">

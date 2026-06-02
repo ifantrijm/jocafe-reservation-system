@@ -1,6 +1,6 @@
 <?php
 // 1. KONEKSI DATABASE (Gunakan koneksi terpusat)
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
 
 // ==========================================
 // --- FITUR TOMBOL SELESAI DITEKAN (SATUAN) ---

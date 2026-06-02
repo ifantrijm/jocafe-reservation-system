@@ -1,6 +1,6 @@
 <?php
 // 1. Koneksi ke database
-include "../config/koneksi.php"; 
+require "../config/koneksi.php"; 
 
 if (isset($_POST['ajukan_event'])) {
     

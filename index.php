@@ -1,8 +1,8 @@
 <?php
 // KONEKSI DATABASE
-$conn = mysqli_connect("localhost", "root", "", "jocafee");
-if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
-
+require "config/koneksi.php";
+// $conn = mysqli_connect("localhost", "root", "", "jocafee");
+// if (!$conn) { die("Koneksi Gagal: " . mysqli_connect_error()); }
 /* =========================================================================
    PENGATURAN GAMBAR HALAMAN DEPAN (HOME)
    -------------------------------------------------------------------------
@@ -80,34 +80,116 @@ function get_gambar($conn, $id_gallery, $default_url) {
             overflow-x: hidden;
         }
 
-        /* Navbar */
-        .navbar-custom {
-            background-color: var(--bg-dark);
-            padding: 1px 1px;
-            border-bottom: 1px solid #ffffff;
-            transition: top 0.4s ease-in-out; 
-        }
-        .navbar-brand {
-            color: var(--jo-orange);
-            font-weight: 600;
-            font-size: 1.5rem;
-            line-height: 1.5;
-            display: block;
-            margin: 0;
-        }
-        .navbar-brand span {
-            display: block;
-            margin-top: -2px;
-            line-height: 2.0;
-        }
+/* Navbar */
+.navbar-custom {
+    background-color: var(--bg-dark);
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    transition: top 0.4s ease-in-out;
+}
 
-        .nav-link {
-            color: var(--text-light) !important;
-            font-size: 0.9rem;
-            margin-left: 15px;
-            text-transform: uppercase;
-        }
-        .nav-link:hover { color: var(--jo-orange) !important; }
+.navbar-brand {
+    color: var(--jo-orange) !important;
+    font-weight: 700;
+    font-size: 1.6rem;
+    line-height: 1.2;
+}
+
+.navbar-brand span {
+    display: block;
+    font-size: 0.75rem;
+    color: #ffffff;
+    font-weight: 400;
+}
+
+.nav-link {
+    color: #ffffff !important;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: var(--jo-orange) !important;
+}
+
+.dropdown-menu {
+    background-color: #111826;
+    border: 1px solid rgba(255,255,255,.1);
+}
+
+.dropdown-item {
+    color: #ffffff;
+}
+
+.dropdown-item:hover {
+    background-color: var(--jo-orange);
+    color: #000;
+}
+
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+
+@media (max-width: 991.98px){
+
+    .navbar-collapse{
+        /* background:#111826; */
+        margin-top:15px;
+        padding:20px;
+        border-radius:12px;
+        border:1px solid rgba(255,255,255,.1);
+        width:100%;
+    }
+
+    .navbar-nav{
+        width:100%;
+    }
+
+    .nav-item{
+        width:100%;
+    }
+
+    .nav-link{
+        display:block;
+        width:100%;
+        padding:12px 0;
+        margin-left:0;
+        white-space:normal;
+    }
+
+    .dropdown-menu{
+        width:100%;
+        background:#0d121d;
+        border:none;
+        margin-top:5px;
+        position:static !important;
+        transform:none !important;
+    }
+
+    .dropdown-item{
+        color:#fff !important;
+        padding:10px 15px;
+        white-space:normal;
+    }
+
+    .nav-item.ms-lg-3{
+        width:100%;
+        margin-top:15px;
+    }
+
+    .nav-item.ms-lg-3 .btn{
+        width:100%;
+    }
+}
 
         .dropdown-menu {
              background-color: var(--bg-dark);
@@ -373,53 +455,211 @@ function get_gambar($conn, $id_gallery, $default_url) {
     color: #f89b1c;
     font-size: 1.15rem;
 }
+
+/* HERO RESPONSIVE */
+.hero-logo-container{
+    width:450px;
+    height:450px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto;
+}
+
+.hero-logo-container img{
+    width:100%;
+    max-width:450px;
+    border-radius:50%;
+    animation:flipKoin 10s infinite linear;
+}
+
+.hero-title{
+    font-size:3.5rem;
+    font-weight:800;
+    line-height:1.2;
+}
+
+/* Tablet */
+@media (max-width: 992px){
+
+    .hero-title{
+        font-size:2.8rem;
+    }
+
+    .hero-logo-container{
+        width:320px;
+        height:320px;
+        margin-top:40px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 768px){
+
+    .section-padding{
+        padding:60px 0;
+    }
+
+    .hero-title{
+        font-size:2.2rem;
+        text-align:center;
+    }
+
+    .hero-logo-container{
+        width:250px;
+        height:250px;
+        margin-top:30px;
+    }
+
+    .d-flex.gap-3.mt-4{
+        justify-content:center;
+        flex-wrap:wrap;
+    }
+
+    .btn-jo,
+    .btn-outline-jo{
+        min-width:150px;
+        text-align:center;
+    }
+}
+
+/* HP kecil */
+@media (max-width: 576px){
+
+    .hero-title{
+        font-size:1.8rem;
+    }
+
+    .hero-logo-container{
+        width:200px;
+        height:200px;
+    }
+
+    .btn-jo,
+    .btn-outline-jo{
+        width:100%;
+    }
+}
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 <body>
 
-    <nav id="joNavbar" class="navbar navbar-expand-lg navbar-custom fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="home.php">Jo Cafe<br><span style="font-size: 0.8rem; color: #fff; font-weight: 400;">Authentic Coffee, Bar & Kitchen</span></a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="index.php">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#welcome">Tentang Kami</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#galeri">Galeri</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#blog">Blog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#menu">Menu</a></li>
-                    <li class="nav-item dropdown ">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<nav id="joNavbar" class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container">
+
+        <a class="navbar-brand" href="home.php">
+            Jo Cafe
+            <span>Authentic Coffee, Bar & Kitchen</span>
+        </a>
+
+        <!-- Tombol Hamburger -->
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarJoCafe"
+                aria-controls="navbarJoCafe"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarJoCafe">
+
+            <ul class="navbar-nav align-items-center">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#welcome">Tentang Kami</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#galeri">Galeri</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#blog">Blog</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#menu">Menu</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
                         Reservasi
                     </a>
-                        <ul class="dropdown-menu">                            
-                            <li class="nav-item"><a class="nav-link" href="reservasi/detail.php">Reservasi Room</a></li>
-                            <li class="nav-item"><a class="nav-link" href="reservasi/detail_event.php">Reservasi Event</a></li>
-                        </ul> 
-                    </li>                                                       
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <section class="section-padding" style="margin-top: 80px;">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="hero-title mb-4">Layanan<br>Reservasi Tempat</h1>
-                    <div class="d-flex gap-3 mt-4">
-                        <a href="#welcome" class="btn btn-outline-jo">Selengkapnya</a>
-                        <a href="page_reservasi.php" class="btn btn-jo">Reservasi</a>
-                    </div>
-                </div>
-                <div class="col-md-6 text-center">
-                    <div class="hero-logo-container">
-                        <img src="https://jocafe.jember.site/assets/img/jocafe.webp" alt="Logo Jo Cafe">
-                    </div>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+
+                        <li>
+                            <a class="dropdown-item"
+                               href="reservasi/detail.php">
+                                Reservasi Room
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"
+                               href="reservasi/detail_event.php">
+                                Reservasi Event
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
+
+                <li class="nav-item ms-lg-3">
+                    <a href="auth/login.php"
+                       class="btn btn-outline-warning btn-sm"
+                       style="padding:8px 22px;border-radius:20px;font-weight:600;">
+                        Login
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+</nav>
+
+<section class="section-padding" style="margin-top:100px;">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <div class="col-lg-6 text-center text-lg-start order-2 order-lg-1">
+                <h1 class="hero-title mb-4">
+                    Layanan<br>Reservasi Tempat
+                </h1>
+
+                <div class="d-flex gap-3 mt-4">
+                    <a href="#welcome" class="btn btn-outline-jo">
+                        Selengkapnya
+                    </a>
+
+                    <a href="page_reservasi.php" class="btn btn-jo">
+                        Reservasi
+                    </a>
                 </div>
             </div>
+
+            <div class="col-lg-6 text-center order-1 order-lg-2">
+                <div class="hero-logo-container">
+                    <img src="https://jocafe.jember.site/assets/img/jocafe.webp"
+                         alt="Logo Jo Cafe">
+                </div>
+            </div>
+
         </div>
-    </section>
+    </div>
+</section>
 
     <section id="welcome" class="section-padding text-center" style="margin-top: 50px;">
         <div class="container">
@@ -714,9 +954,7 @@ function get_gambar($conn, $id_gallery, $default_url) {
                             <li><a href="page_reservasi.php?room=1" class="text-decoration-none">Room 1</a></li>
                             <li><a href="page_reservasi.php?room=2" class="text-decoration-none">Room 2</a></li>
                             <li><a href="page_reservasi.php?room=3" class="text-decoration-none">Room 3</a></li>
-                            <li><a href="page_reservasi.php?room=4" class="text-decoration-none">Room 4</a></li>
-                            <li><a href="page_reservasi.php?room=5" class="text-decoration-none">Room 5</a></li>
-                            <li><a href="page_reservasi.php?room=6" class="text-decoration-none">Room 6</a></li>
+
                         </ul>
                     </div>
                 </div>

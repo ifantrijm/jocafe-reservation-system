@@ -1,6 +1,6 @@
 <?php
 // 1. KONEKSI DATABASE (Gunakan koneksi terpusat)
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
 
 // Set zona waktu agar akurat saat mengecek waktu habis
 date_default_timezone_set('Asia/Jakarta');
@@ -141,7 +141,7 @@ $jml_event = $query_event ? mysqli_num_rows($query_event) : 0;
 </style>
 
 <div class="home-content">
-    <h2 class="fw-bold mb-4">Dashboard Overview</h2>
+    <h2 class="fw-bold mb-4">Dashboard <span style="color: #f89d13;">Overview</span> </h2>
     
     <div class="row g-4 mb-4">
         <div class="col-md-4">

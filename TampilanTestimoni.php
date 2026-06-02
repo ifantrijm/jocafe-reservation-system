@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // 1. KONEKSI DATABASE
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
 
 $url_kembali = "admin.php?page=TampilanTestimoni";
 $id_admin = $_SESSION['id_admin'] ?? 'NULL';
@@ -51,7 +51,6 @@ if (isset($_GET['sembunyikan'])) {
     <title>Testimoni - Jo Cafe</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
@@ -67,14 +66,9 @@ if (isset($_GET['sembunyikan'])) {
         body{
             background-color: var(--bg-dark);
             color: white;
-            font-family: 'Poppins', sans-serif;
+            /* font-family: 'Poppins', sans-serif; */
         }
 
-        .title-cursive{
-            font-family: 'Great Vibes', cursive;
-            font-size: 3.5rem;
-            color: white;
-        }
 
         /* =========================
            WRAPPER
@@ -190,6 +184,10 @@ if (isset($_GET['sembunyikan'])) {
         .btn-sembunyikan{ background: #f39c12; color: white; border: none; }
         .btn-sembunyikan:hover{ background: #d68910; color: white; }
 
+        /* CSS KHUSUS TOMBOL WA */
+        .btn-wa { background: #25D366; color: white; border: none; }
+        .btn-wa:hover { background: #128C7E; color: white; }
+
         /* =========================
            RESPONSIVE
         ========================= */
@@ -198,6 +196,14 @@ if (isset($_GET['sembunyikan'])) {
             .title-cursive{ font-size: 2.5rem; }
             .testimoni-wrapper{ padding: 20px; }
         }
+
+        @media (max-width: 768px) {
+            .header-title { font-size: 1.8rem; }
+            .management-card, .testimoni-wrapper { padding: 15px; } 
+            .table { min-width: 800px; } 
+            .d-flex.justify-content-between { flex-direction: column; gap: 15px; text-align: center; }
+            .btn-jo { width: 100%; }
+        }        
     </style>
 </head>
 
@@ -208,7 +214,7 @@ if (isset($_GET['sembunyikan'])) {
 
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
             <div>
-                <h1 class="title-cursive mb-0">Customer Testimoni</h1>
+                <h1 class="title-cursive mb-0">Customer <span style="color: #f89d13;">Testimoni</span> </h1>
                 <p style="color:#aaa; margin:0;">Semua ulasan pelanggan Jo Cafe</p>
             </div>
             <div class="testi-total">
@@ -232,15 +238,25 @@ if (isset($_GET['sembunyikan'])) {
                 </thead>
                 <tbody>
                 <?php
+                // Modifikasi query jika no_telp ternyata kosong dan harus join ke pelanggan (opsional, tapi pakai ini lebih aman)
                 $query_testimoni = mysqli_query($conn, "SELECT * FROM testimoni ORDER BY id_testimoni DESC");
                 while($row = mysqli_fetch_assoc($query_testimoni)) {
                     $status_class = ($row['status'] == 'tampilkan') ? 'status-tampilkan' : 'status-pending';
+                    
+                    // LOGIKA PENGUBAHAN NOMOR WA
+                    $no_wa = isset($row['no_telp']) ? $row['no_telp'] : '';
+                    if (!empty($no_wa) && substr($no_wa, 0, 1) == '0') { 
+                        $no_wa = '62' . substr($no_wa, 1); 
+                    }
                 ?>
                     <tr>
                         <td>
                             <div class="fw-bold text-white">
                                 <?= htmlspecialchars($row['nama']); ?>
                             </div>
+                            <?php if(!empty($row['no_telp'])): ?>
+                                <small style="color: #8b95a5;"><i class="fas fa-phone-alt" style="font-size: 10px;"></i> <?= $row['no_telp']; ?></small>
+                            <?php endif; ?>
                         </td>
 
                         <td>
@@ -262,6 +278,12 @@ if (isset($_GET['sembunyikan'])) {
                         </td>
 
                         <td class="text-center">
+                            <?php if(!empty($no_wa)): ?>
+                                <a href="https://wa.me/<?= $no_wa; ?>" target="_blank" class="btn-action btn-wa" title="Hubungi Pelanggan via WA">
+                                    <i class="fab fa-whatsapp"></i> WA
+                                </a>
+                            <?php endif; ?>
+
                             <a href="<?= $url_kembali; ?>&hapus=<?php echo $row['id_testimoni']; ?>"
                                class="btn-action btn-hapus"
                                onclick="return confirm('Hapus testimoni ini secara permanen?')">

@@ -14,8 +14,8 @@
     
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand fs-4" href="#">JO EVENT.</a>
-            <a href="../index.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
+            <a class="navbar-brand fs-4" href="#">JO AREA.</a>
+            <a href="../page_reservasi.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
         </div>
     </nav>
 </body>

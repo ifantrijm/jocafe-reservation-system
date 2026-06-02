@@ -1,6 +1,6 @@
 <?php
 // 1. Sertakan file koneksi ke database (Pastikan variabel di koneksi.php adalah $conn)
-include "config/koneksi.php"; 
+require "config/koneksi.php"; 
 
 // 2. Cek apakah tombol "Kirim" sudah diklik
 if (isset($_POST['kirim'])) {

@@ -1,6 +1,6 @@
 <?php
 // Jangan ada session_start() di sini karena ini akan di-include ke manager.php
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
 
 // ==========================================
 // --- LOGIKA TOMBOL SETUJUI (APPROVE) ---

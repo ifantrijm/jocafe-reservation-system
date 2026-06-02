@@ -6,7 +6,6 @@
     <title>Document</title>
 </head>
     <style>
-         :root {  --accent-gold: #f89d13; --border-dark: rgba(255, 255, 255, 0.1); }
         .navbar-custom { background-color: rgba(19, 23, 28, 100); border-bottom: 1px solid var(--border-dark); }
             .navbar-brand { font-weight: 800; color: var(--accent-gold) !important; }
     </style>    
@@ -14,8 +13,8 @@
     
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
         <div class="container">
-            <a class="navbar-brand fs-4" href="#">JO EVENT.</a>
-            <a href="../index.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
+            <a class="navbar-brand fs-4" href="#">JO ROOM.</a>
+            <a href="../reservasi/detail.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
         </div>
     </nav>
 </body>

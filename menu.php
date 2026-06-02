@@ -1,11 +1,38 @@
 <?php
-// Pastikan session sudah aktif dari admin.php untuk mengambil id_admin
+// Pastikan session sudah aktif
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // 1. KONEKSI DATABASE
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
+
+// FUNGSI KOMPRESI & RESIZE GAMBAR
+function compressImage($source, $destination, $quality) {
+    $info = getimagesize($source);
+    if ($info['mime'] == 'image/jpeg') $image = imagecreatefromjpeg($source);
+    elseif ($info['mime'] == 'image/png') $image = imagecreatefrompng($source);
+    elseif ($info['mime'] == 'image/webp') $image = imagecreatefromwebp($source);
+    else return false;
+
+    // Resize (Lebar maks 600px, cukup untuk menu agar tetap tajam)
+    $width = $info[0];
+    $height = $info[1];
+    $new_width = 600; 
+    $new_height = ($height / $width) * $new_width;
+    
+    $tmp = imagecreatetruecolor($new_width, $new_height);
+    // Menjaga transparansi PNG
+    imagealphablending($tmp, false);
+    imagesavealpha($tmp, true);
+    
+    imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+    
+    imagejpeg($tmp, $destination, $quality);
+    imagedestroy($image);
+    imagedestroy($tmp);
+    return $destination;
+}
 
 // --- FITUR EDIT: AMBIL DATA LAMA ---
 $is_edit = false;
@@ -26,58 +53,41 @@ if (isset($_POST['simpan'])) {
     $kategori = $_POST['kategori'];
     $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
     
-    // PERBAIKAN HARGA: Buang desimal .00 atau ,00 di akhir, lalu ambil angkanya saja
     $harga_mentah = $_POST['harga'];
     $harga_mentah = preg_replace('/[,.]00$/', '', $harga_mentah); 
     $harga = (int) preg_replace('/[^0-9]/', '', $harga_mentah);
     
     $id_target = $_POST['id_menu']; 
-    
-    // Ambil ID Admin yang sedang login (Pastikan jadi integer atau NULL untuk cegah SQL Error)
     $id_admin = isset($_SESSION['id_admin']) ? (int)$_SESSION['id_admin'] : 'NULL';
-
-    // Set default nama file pakai gambar yang lama
     $nama_file = $_POST['gambar_lama']; 
     
-    // PERBAIKAN UPLOAD GAMBAR: Cek error 0 (sukses masuk temp)
+    // PERBAIKAN UPLOAD GAMBAR DENGAN KOMPRESI
     if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] === 0) {
         $nama_asli = preg_replace("/\s+/", "_", basename($_FILES['gambar']['name']));
         $nama_file_baru = time() . "_" . $nama_asli;
         $direktori = "../assets/img/menu/"; 
+        $path = $direktori . $nama_file_baru;
         
-        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $direktori . $nama_file_baru)) {
+        if (move_uploaded_file($_FILES['gambar']['tmp_name'], $path)) {
+            // EKSEKUSI KOMPRESI (Kualitas 70)
+            compressImage($path, $path, 70);
+            
             // Hapus gambar lama JIKA ADA
             if (!empty($_POST['gambar_lama']) && file_exists($direktori . $_POST['gambar_lama'])) {
                 unlink($direktori . $_POST['gambar_lama']);
             }
             $nama_file = $nama_file_baru;
-        } else {
-            echo "<script>alert('Gambar gagal dipindahkan! Cek permission folder.'); window.history.back();</script>";
-            exit;
         }
-    } else if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] !== 4) {
-        echo "<script>alert('Gagal upload! Gambar mungkin terlalu besar (Maksimal 2MB).'); window.history.back();</script>";
-        exit;
     }
 
     if ($id_target) {
-        // Query Update 
-        $query = "UPDATE menu SET 
-                    id_admin = $id_admin,
-                    nama_item = '$nama', 
-                    kategori = '$kategori', 
-                    deskripsi = '$deskripsi', 
-                    harga = '$harga', 
-                    gambar = '$nama_file' 
-                  WHERE id_menu = '$id_target'";
+        $query = "UPDATE menu SET id_admin = $id_admin, nama_item = '$nama', kategori = '$kategori', deskripsi = '$deskripsi', harga = '$harga', gambar = '$nama_file' WHERE id_menu = '$id_target'";
     } else {
-        // Query Insert
-        $query = "INSERT INTO menu (id_admin, nama_item, kategori, deskripsi, harga, gambar) 
-                  VALUES ($id_admin, '$nama', '$kategori', '$deskripsi', '$harga', '$nama_file')";
+        $query = "INSERT INTO menu (id_admin, nama_item, kategori, deskripsi, harga, gambar) VALUES ($id_admin, '$nama', '$kategori', '$deskripsi', '$harga', '$nama_file')";
     }
     
     if(!mysqli_query($conn, $query)) {
-        echo "<script>alert('Gagal menyimpan ke database: " . mysqli_error($conn) . "'); window.history.back();</script>";
+        echo "<script>alert('Gagal menyimpan: " . mysqli_error($conn) . "'); window.history.back();</script>";
         exit;
     }
     
@@ -85,7 +95,7 @@ if (isset($_POST['simpan'])) {
     exit;
 }
 
-// 3. LOGIKA HAPUS
+// 3. LOGIKA HAPUS (Tetap sama)
 if (isset($_GET['hapus'])) {
     $id = $_GET['hapus'];
     $cek = mysqli_query($conn, "SELECT gambar FROM menu WHERE id_menu = '$id'");
@@ -95,12 +105,11 @@ if (isset($_GET['hapus'])) {
         unlink("../assets/img/menu/" . $data['gambar']);
     }
     mysqli_query($conn, "DELETE FROM menu WHERE id_menu = '$id'");
-    
     echo "<script>window.location.href='admin.php?page=menu';</script>";
     exit;
 }
 
-// 4. LOGIKA BEST SELLER
+// 4. LOGIKA BEST SELLER (Tetap sama)
 if (isset($_GET['toggle_bs'])) {
     $id = $_GET['toggle_bs'];
     $cek = mysqli_fetch_assoc(mysqli_query($conn, "SELECT is_bestseller FROM menu WHERE id_menu = '$id'"));
@@ -112,7 +121,7 @@ if (isset($_GET['toggle_bs'])) {
         if ($count['total'] < 3) {
             mysqli_query($conn, "UPDATE menu SET is_bestseller = 1 WHERE id_menu = '$id'");
         } else {
-            echo "<script>alert('Maksimal hanya 3 menu Best Seller yang diizinkan!');</script>";
+            echo "<script>alert('Maksimal hanya 3 menu Best Seller!');</script>";
         }
     }
     echo "<script>window.location.href='admin.php?page=menu';</script>";
@@ -122,7 +131,7 @@ if (isset($_GET['toggle_bs'])) {
 
 <style>
     .content-menu { padding:20px; max-width:1100px; margin:auto; color: white; font-family: 'Plus Jakarta Sans', sans-serif;}
-    .title { font-size:24px; margin-bottom:20px; font-weight: bold;}
+    .title { margin-bottom:20px; font-weight: bold;}
     .stats { margin-bottom:20px; }
     .stat-box { background:#1c2128; padding:20px; border-radius:10px; border: 1px solid #444; }
     .grid { display:flex; gap:20px; align-items:flex-start; }
@@ -136,10 +145,16 @@ if (isset($_GET['toggle_bs'])) {
     .btn-del { background: crimson; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; margin-left: 5px; }
     .btn-edit { background: orange; color: black; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold; }
     .cancel-edit { display: block; text-align: center; margin-top: 10px; color: #aaa; text-decoration: none; font-size: 12px; }
+    @media (max-width: 768px) {
+        .grid { flex-direction: column; } /* Bikin form dan tabel jadi atas-bawah */
+        .form { width: 100%; position: relative; top: 0; } /* Form menuhi layar */
+        .card { width: 100%; overflow-x: auto; box-sizing: border-box; } /* Tabel bisa digeser kiri-kanan */
+        table { min-width: 650px; } /* Tabel gak gepeng */
+    }
 </style>
 
 <div class="content-menu">
-    <div class="title">Management Menu</div>
+    <h2 class="title fw-bold">Management <span style="color: #f89d13;">Menu</span> </h2>
 
     <!-- <div class="stats">
         <div class="stat-box">

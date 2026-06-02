@@ -1,6 +1,6 @@
 <?php
 // Pastikan path koneksi sudah benar
-include "../config/koneksi.php"; 
+require "../config/koneksi.php"; 
 
 // Mengambil data dari tabel gallery
 $query = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'event' ORDER BY id_gallery DESC");
@@ -16,6 +16,10 @@ $query = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'event' ORD
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0a0e17; color: white; font-family: 'Poppins', sans-serif; }
+
+        :root {  --accent-gold: #f89d13; --border-dark: rgba(255, 255, 255, 0.1); }
+        .navbar-custom { background-color: rgba(19, 23, 28, 100); border-bottom: 1px solid var(--border-dark); }
+        .navbar-brand { font-weight: 800; color: var(--accent-gold) !important; }
         
         /* Animasi Slide */
         .fade-in-slide {
@@ -48,7 +52,14 @@ $query = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'event' ORD
 </head>
 <body>
 
-<div class="container py-5">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+        <div class="container">
+            <a class="navbar-brand fs-4" href="#">JO EVENT.</a>
+            <a href="../page_reservasi.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
+        </div>
+    </nav>
+
+<div class="container py-5 mt-4">
     <div class="text-center mb-5 fade-in-slide">
         <h1 class="fw-bold">Jo Cafe <span style="color: #f89b1c;">Event Moment</span></h1>
         <p class="text-secondary mt-3">Abadikan setiap momen berharga acara anda bersama kami dengan pelayanan terbaik.</p>
@@ -68,7 +79,7 @@ $query = mysqli_query($conn, "SELECT * FROM gallery WHERE kategori = 'event' ORD
     </div>
 
     <div class="d-flex justify-content-center gap-3 fade-in-slide">
-        <a href="../index.php" class="btn btn-back btn-custom">Kembali</a>
+        <a href="../page_reservasi.php" class="btn btn-back btn-custom">Kembali</a>
         <a href="event.php" class="btn btn-booking btn-custom">Booking Sekarang</a>
     </div>
 </div>

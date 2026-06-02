@@ -1,6 +1,6 @@
 <?php
 // Naik satu folder ke luar folder reservasi, baru masuk ke config
-include "../config/koneksi.php"; 
+require "../config/koneksi.php"; 
 
 // Ambil data dari tabel room
 $query = mysqli_query($conn, "SELECT * FROM room");
@@ -27,14 +27,9 @@ $query = mysqli_query($conn, "SELECT * FROM room");
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-        <div class="container">
-            <a class="navbar-brand fs-4" href="#">JO CAFE.</a>
-            <a href="../page_reservasi.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
-        </div>
-    </nav>
+<?php include"../include/navbararea.php" ?>
 
-<div class="container py-5">
+<div class="container py-5 mt-4">
     <div class="text-center mb-5">
         <h1 class="fw-bold">Pilih <span style="color: #f89b1c;">Area Meja</span></h1>
         <p class="text-secondary">Area Hijau = Tersedia | Area Merah = Penuh</p>
@@ -48,7 +43,9 @@ $query = mysqli_query($conn, "SELECT * FROM room");
         <div class="col-md-4">
             <div class="card card-room h-100 shadow">
                 <!-- Path gambar harus keluar folder reservasi dulu -->
-                <img src="../assets/img/room/<?= $row['gambar']; ?>" class="card-img-top img-room" alt="Room Image">
+                <!-- <img src="../assets/img/room/<?= $row['gambar']; ?>" class="card-img-top img-room" alt="Room Image"> -->
+                 <img src="<?= (!empty($row['gambar']) && file_exists("../assets/img/room/" . $row['gambar'])) ? '../assets/img/room/' . $row['gambar'] : '../assets/img/default-room.jpg'; ?>" 
+     class="card-img-top img-room" alt="Room Image">
                 <div class="card-body text-center">
                     <h4 class="fw-bold mb-2 text-white"><?= $row['nama_area']; ?></h4>
                     <p class="small text-secondary mb-3">Kapasitas: <?= $row['kapasitas']; ?> Orang</p>

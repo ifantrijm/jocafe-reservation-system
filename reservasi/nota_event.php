@@ -1,5 +1,5 @@
 <?php
-include "../config/koneksi.php";
+require "../config/koneksi.php";
 
 // Ambil ID dari URL
 $id = $_GET['id'];

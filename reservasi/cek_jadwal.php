@@ -1,5 +1,5 @@
 <?php
-include "../config/koneksi.php";
+require "../config/koneksi.php";
 
 if(isset($_GET['tgl'])) {
     $tgl = mysqli_real_escape_string($conn, $_GET['tgl']);

@@ -22,7 +22,7 @@ header("Expires: 0");
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
+    
     <style>
         :root {
             --bg-main: #13171c; 
@@ -30,6 +30,7 @@ header("Expires: 0");
             --text-main: #ffffff;
             --accent-gold: #f89d13; 
             --border-dark: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 250px;
         }
 
         body {
@@ -38,35 +39,33 @@ header("Expires: 0");
             color: var(--text-main);
             margin: 0;
             display: flex;
-            /* overflow: hidden; DIHAPUS BIAR BISA SCROLL */
         }
 
+        /* --- DESAIN SIDEBAR DEFAULT (PC/LAPTOP) --- */
         .sidebar {
-            width: 250px;
+            width: var(--sidebar-width);
             height: 100vh;
             background-color: var(--bg-card);
             border-right: 1px solid var(--border-dark);
             padding: 20px;
             position: fixed;
+            z-index: 1040;
+            transition: transform 0.3s ease-in-out;
         }
 
-        /* BAGIAN INI YANG DIBENERIN BIAR BISA SCROLL */
         .main-content {
-            margin-left: 250px;
-            width: calc(100% - 250px);
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
             height: 100vh; 
             padding: 0;
-            overflow-y: auto; /* INI KUNCINYA */
+            overflow-y: auto; 
             overflow-x: hidden;
-            padding-bottom: 50px; /* Jarak aman di bawah */
+            padding-bottom: 50px; 
+            transition: width 0.3s ease-in-out, margin-left 0.3s ease-in-out;
         }
 
         /* Desain layarnya */
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
+        iframe { width: 100%; height: 100%; border: none; }
 
         .nav-link-custom {
             color: var(--text-main);
@@ -83,13 +82,72 @@ header("Expires: 0");
             color: var(--bg-main);
             font-weight: 700;
         }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Great+Vibes&display=swap" rel="stylesheet">
 
+        /* --- LOGIKA RESPONSIF UNTUK MOBILE (< 768px) --- */
+        .btn-toggle-mobile { display: none; }
+        .sidebar-overlay { display: none; }
+
+        @media (max-width: 768px) {
+            /* Sembunyikan sidebar ke kiri */
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            /* Sidebar Muncul saat class .show-mobile ditambahkan via JavaScript */
+            .sidebar.show-mobile {
+                transform: translateX(0);
+            }
+
+            /* Konten utama jadi Full Width menuhin layar */
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding-bottom: 100px; /* Jarak aman biar tidak tertutup tombol */
+            }
+
+            /* Tombol Melayang (Burger Button) buat buka Sidebar */
+            .btn-toggle-mobile {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                bottom: 25px;
+                right: 25px;
+                width: 55px;
+                height: 55px;
+                border-radius: 50%;
+                background-color: var(--accent-gold);
+                color: var(--bg-main);
+                border: none;
+                font-size: 1.5rem;
+                box-shadow: 0px 4px 15px rgba(248, 157, 19, 0.4);
+                z-index: 1050; /* Selalu di atas */
+                cursor: pointer;
+            }
+
+            /* Layar Hitam Transparan saat menu dibuka */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 1030;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease-in-out;
+            }
+            .sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+                display: block;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="sidebar">
+<div class="sidebar-overlay" onclick="tutupSidebar()"></div>
+
+<div class="sidebar" id="sidebarMenu">
     <h4 class="fw-bold mb-4" style="color: var(--accent-gold);">JO CAFE <span class="text-white">ADMIN</span></h4>
     
     <div class="d-flex align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-dark);">
@@ -120,8 +178,8 @@ header("Expires: 0");
     <a href="../auth/logout.php" class="nav-link-custom text-danger"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
 </div>
 
-    <div class="main-content">
-        <?php 
+<div class="main-content">
+    <?php 
     // 1. Menangkap parameter halaman dari URL. Jika baru login (kosong), arahkan ke 'home'
     $halaman = isset($_GET['page']) ? $_GET['page'] : 'home';
 
@@ -159,18 +217,38 @@ header("Expires: 0");
             break;
     }
     ?>
-    </div>
+</div>
 
-    <script>
-        const links = document.querySelectorAll('.nav-link-custom');
-        links.forEach(link => {
-            link.addEventListener('click', function() {
-                if(!this.classList.contains('text-danger')) {
-                    links.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                }
-            });
+<button class="btn-toggle-mobile" onclick="bukaSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<script>
+    // 1. Logika Klik Aktif Sidebar
+    const links = document.querySelectorAll('.nav-link-custom');
+    links.forEach(link => {
+        link.addEventListener('click', function() {
+            if(!this.classList.contains('text-danger')) {
+                links.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            }
         });
-    </script>
+    });
+
+    // 2. Logika Sidebar Responsif untuk HP
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    function bukaSidebar() {
+        sidebar.classList.add('show-mobile');
+        overlay.classList.add('active');
+    }
+
+    function tutupSidebar() {
+        sidebar.classList.remove('show-mobile');
+        overlay.classList.remove('active');
+    }
+</script>
+
 </body>
 </html>

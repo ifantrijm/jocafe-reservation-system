@@ -1,6 +1,6 @@
 <?php
 // Gak perlu session_start lagi karena udah di-handle sama file induk
-include_once "../config/koneksi.php";
+require "../config/koneksi.php";
 
 // Query Data Overview
 $query_menu = mysqli_query($conn, "SELECT * FROM menu"); $jml_menu = $query_menu ? mysqli_num_rows($query_menu) : 0;

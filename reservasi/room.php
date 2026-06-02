@@ -1,5 +1,29 @@
 <?php
-include "../config/koneksi.php";
+require "../config/koneksi.php";
+
+function compressImage($source, $destination, $quality) {
+    $info = getimagesize($source);
+    
+    // 1. Buat gambar berdasarkan format
+    if ($info['mime'] == 'image/jpeg') $image = imagecreatefromjpeg($source);
+    elseif ($info['mime'] == 'image/png') $image = imagecreatefrompng($source);
+    
+    // 2. Resize: Tentukan lebar maksimal 800px (tinggi menyesuaikan)
+    $width = $info[0];
+    $height = $info[1];
+    $new_width = 800; 
+    $new_height = ($height / $width) * $new_width;
+    
+    $tmp = imagecreatetruecolor($new_width, $new_height);
+    imagecopyresampled($tmp, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+    
+    // 3. Simpan dengan kualitas 60
+    imagejpeg($tmp, $destination, $quality);
+    
+    // Bersihkan memory
+    imagedestroy($image);
+    imagedestroy($tmp);
+}
 
 // ==========================================
 // 1. SATPAM FLOW: Validasi Akses ID Room
@@ -62,7 +86,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
     $bukti_tmp  = $_FILES['bukti_pembayaran']['tmp_name'];
     $bukti_baru = time() . '_' . $bukti_nama;
     
-    move_uploaded_file($bukti_tmp, "../assets/img/bukti/" . $bukti_baru);
+    // --- PROSES UPLOAD & KOMPRESI ---
+    $bukti_nama = $_FILES['bukti_pembayaran']['name'];
+    $bukti_tmp  = $_FILES['bukti_pembayaran']['tmp_name'];
+    $bukti_baru = time() . '_' . $bukti_nama;
+    $target_path = "../assets/img/bukti/" . $bukti_baru;
+    
+    // Pindahkan file asli dulu ke folder
+    if (move_uploaded_file($bukti_tmp, $target_path)) {
+        // Langsung kompres file yang baru saja di-upload
+        // Kualitas 60 cukup untuk bukti bayar, ukuran file akan jauh lebih kecil!
+        compressImage($target_path, $target_path, 60);
+    }
 
     // --- TAHAP 1: INPUT KE PELANGGAN ---
     $cek = mysqli_query($conn, "SELECT id_pelanggan FROM pelanggan WHERE telepon = '$telepon'");
@@ -115,12 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['proses_reservasi'])) {
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-        <div class="container">
-            <a class="navbar-brand fs-4" href="#">JO CAFE.</a>
-            <a href="detail.php" class="btn btn-outline-light btn-sm rounded-pill px-4">Kembali</a>
-        </div>
-    </nav>
+<?php include"../include/navbarroom.php" ?>
 
     <div class="container mb-5">
         <div class="row justify-content-center">
