@@ -61,7 +61,10 @@ $data = mysqli_fetch_assoc($query);
         </div>
         <div class="d-flex justify-content-between mb-2">
             <span>Waktu:</span>
-            <span><?= $data['jam_mulai']; ?> WIB - Selesai</span>
+        <span>
+            <?= $data['jam_mulai']; ?> -
+            <?= (!empty($data['jam_selesai']) && $data['jam_selesai'] != '00:00:00') ? $data['jam_selesai'] . ' WIB' : 'Selesai'; ?>
+        </span>           
         </div>
 
         <div class="line"></div>

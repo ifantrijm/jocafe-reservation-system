@@ -102,6 +102,26 @@ if (isset($_POST['kirim'])) {
             padding: 15px; border-radius: 10px; margin-bottom: 10px;
             border-left: 4px solid #f59e0b;
         }
+
+        /* --- STYLING TOMBOL BESAR --- */
+        .custom-btn {
+            background-color: transparent;
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none; /* Mencegah garis bawah tautan */
+            display: block; /* Agar lebar tombol penuh jika butuh */
+            width: 100%; /* Lebar tombol penuh */
+            text-align: center;
+        }
+    
     </style>
 </head>
 <body>
@@ -130,6 +150,7 @@ if (isset($_POST['kirim'])) {
             </select>
         </div>  
         <button type="submit" name="kirim">Kirim Sekarang ✨</button>
+        <a href="index.php" class="custom-btn">Kembali</a>
     </form>
 
 </div>

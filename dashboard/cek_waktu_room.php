@@ -35,7 +35,13 @@ while ($row = mysqli_fetch_assoc($query)) {
             if (substr($no_wa, 0, 1) == '0') { $no_wa = '62' . substr($no_wa, 1); }
             
             $nama_pelanggan = $row['nama'];
-            $pesan = "Halo Kak *$nama_pelanggan*, \n\nMohon maaf, waktu reservasi meja Anda (Area: *{$row['nama_area']}*) di Jo Cafe telah *habis*. \n\nSilakan konfirmasi ke kasir jika ingin memperpanjang waktu. Terima kasih! 🙏";
+            $pesan = "Halo Kak *$nama_pelanggan*, \n\n" .
+         "Mohon maaf, waktu reservasi meja Anda (Area: *{$row['nama_area']}*) di Jo Cafe telah *habis*. \n\n" .
+         "Silakan konfirmasi ke kasir jika ingin ada yang disampaikan. \n\n" .
+         "Oh iya Kak, bagaimana pengalaman reservasi di tempat kami? " .
+         "Boleh minta bantuannya untuk memberikan rating dan ulasan di sini ya: \n" .
+         "👉 https://jcf-cintapelanggan.mif.myhost.id/testimoni.php \n\n" .
+         "Terima kasih atas kunjungannya! 🙏";
             
             $curl = curl_init();
             curl_setopt_array($curl, array(
